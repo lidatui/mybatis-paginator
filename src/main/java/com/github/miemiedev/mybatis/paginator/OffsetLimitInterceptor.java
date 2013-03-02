@@ -88,7 +88,6 @@ public class OffsetLimitInterceptor implements Interceptor{
                 sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
             }
 
-
 			if (dialect.supportsLimitOffset()) {
 				sql = dialect.getLimitString(sql, offset, limit);
 				offset = RowBounds.NO_ROW_OFFSET;

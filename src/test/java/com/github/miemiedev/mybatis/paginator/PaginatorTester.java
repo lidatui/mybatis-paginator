@@ -1,6 +1,5 @@
 package com.github.miemiedev.mybatis.paginator;
 
-import org.apache.ibatis.session.RowBounds;
 import org.junit.Test;
 
 import java.util.HashMap;
