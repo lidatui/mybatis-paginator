@@ -46,7 +46,7 @@ public class Dialect {
      * @return 总记录数的sql
      */
     public String getCountString(String sql){
-        return "select count(1) from (" + sql + ")";
+        return "select count(1) from (" + sql + ") tmp_count";
     }
 
     /**
@@ -59,7 +59,7 @@ public class Dialect {
             return sql;
         }
 
-        StringBuffer buffer = new StringBuffer("select * from (").append(sql).append(") order by ");
+        StringBuffer buffer = new StringBuffer("select * from (").append(sql).append(") temp_order order by ");
         for(SortInfo sortInfo : sortInfos){
              buffer.append(sortInfo.getColumnName())
                      .append(" ")
