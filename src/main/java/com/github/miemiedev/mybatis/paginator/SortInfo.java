@@ -10,10 +10,9 @@ import java.util.List;
  * @author miemiedev
  */
 public class SortInfo implements Serializable{
+    private static String INJECT_STRING = "'|and|exec|insert|select|delete|update|count|*|%|chr|mid|master|truncate|char|declare|;|or|-|+|,";
 
-	private static final long serialVersionUID = 6959974032209696722L;
-
-	private String columnName;
+    private String columnName;
 	private String sortStatus;
 	
 	public SortInfo() {
@@ -49,13 +48,27 @@ public class SortInfo implements Serializable{
 		String[] sortSegments = sortColumns.trim().split(",");
 		for(int i = 0; i < sortSegments.length; i++) {
 			String sortSegment = sortSegments[i];
-			results.add(parseSortColumn(sortSegment));
+            SortInfo sortInfo = parseSortColumn(sortSegment);
+            if(sortInfo != null){
+                results.add(sortInfo);
+            }
 		}
 		return results;
 	}
 
     public static SortInfo parseSortColumn(String sortSegment) {
-        String[] array = sortSegment.split("\\.");
+        if(sortSegment == null || sortSegment.trim().equals("")){
+            return null;
+        }
+
+        String[] injectStrings = INJECT_STRING.split("\\|");
+        for (int i=0 ; i < injectStrings.length ; i++ ){
+              if (sortSegment.toLowerCase().contains(injectStrings[i])){
+                  return null;
+              }
+        }
+
+        String[] array = sortSegment.trim().split("\\.");
         SortInfo sortInfo = new SortInfo();
         sortInfo.setColumnName(array[0]);
         sortInfo.setSortStatus(array.length == 2 ? array[1] : "asc");
