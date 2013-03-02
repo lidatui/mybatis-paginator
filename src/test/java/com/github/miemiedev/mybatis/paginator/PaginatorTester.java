@@ -33,7 +33,6 @@ public class PaginatorTester extends SimulateBaseDao{
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("type",type);
-        params.put("sortInfos",pageQuery.getSortInfoList());
 
         return getSqlSession().selectList("financial.dict.find", params, pageQuery);
     }
