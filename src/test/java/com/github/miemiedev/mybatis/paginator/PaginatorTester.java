@@ -21,7 +21,6 @@ import java.util.Map;
 
 public class PaginatorTester {
     private SqlSession session;
-    private SqlSessionFactory  sqlSessionFactory;
 
     @Before
     public void init() throws IOException {
