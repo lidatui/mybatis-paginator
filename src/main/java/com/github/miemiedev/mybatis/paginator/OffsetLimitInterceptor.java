@@ -34,7 +34,7 @@ import java.util.Properties;
 		method = "query",
 		args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 public class OffsetLimitInterceptor implements Interceptor{
-    Logger log = LoggerFactory.getLogger(this.getClass());
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	static int MAPPED_STATEMENT_INDEX = 0;
 	static int PARAMETER_INDEX = 1;
@@ -72,14 +72,14 @@ public class OffsetLimitInterceptor implements Interceptor{
                 int count = SQLHelp.getCount(sql, connection, ms, parameter, boundSql, dialect);
                 paginator = new Paginator((offset/limit)+1, limit, count);
             } catch (SQLException e) {
-                log.error("The total number of access to the database failure.", e);
+                logger.error("The total number of access to the database failure.", e);
             } finally {
                 try {
                     if (connection != null && !connection.isClosed()) {
                         connection.close();
                     }
                 } catch (SQLException e) {
-                    log.error("Close the database connection error.", e);
+                    logger.error("Close the database connection error.", e);
                 }
             }
 

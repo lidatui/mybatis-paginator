@@ -58,7 +58,7 @@ public class SortInfo implements Serializable{
         String[] array = sortSegment.split("\\.");
         SortInfo sortInfo = new SortInfo();
         sortInfo.setColumnName(array[0]);
-        sortInfo.setSortStatus(array.length == 2 ? array[1] : null);
+        sortInfo.setSortStatus(array.length == 2 ? array[1] : "asc");
         return sortInfo;
     }
 	

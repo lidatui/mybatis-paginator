@@ -5,14 +5,17 @@
 <mapper namespace="financial.dict">
 
 	<select id="find" resultType="map">
-        <if test="sortName != null and sortName != '' ">
+        <if test="sortInfos != null">
             select * from (
         </if>
 
-		select * from FP_BASE_DICT t
+		select * from FP_BASE_DICT where type like #{type} || '%'
 
-        <if test="sortName != null and sortName != '' ">
-            ) order by  ${sortName} ${sortStatus}
+        <if test="sortInfos != null">
+            ) order by
+            <foreach item="sortInfo" index="index" collection="sortInfos" open="" separator="," close="">
+                ${sortInfo.columnName} ${sortInfo.sortStatus}
+            </foreach>
         </if>
 	</select>
 
