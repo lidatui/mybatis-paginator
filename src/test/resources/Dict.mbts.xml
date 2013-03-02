@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="financial.dict">
+
+	<select id="find" resultType="map">
+        <if test="sortName != null and sortName != '' ">
+            select * from (
+        </if>
+
+		select * from FP_BASE_DICT t
+
+        <if test="sortName != null and sortName != '' ">
+            ) order by  ${sortName} ${sortStatus}
+        </if>
+	</select>
+
+</mapper>

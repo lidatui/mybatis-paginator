@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%c]-[%p] %m%n" />
+		</layout>
+	</appender>
+
+	<category name="financial" additivity="false">
+        <priority value="DEBUG" />
+        <appender-ref ref="CONSOLE" />
+    </category>
+
+	<root>
+		<level value="WARN" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</log4j:configuration>
