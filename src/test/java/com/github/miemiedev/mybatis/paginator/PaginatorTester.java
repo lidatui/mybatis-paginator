@@ -26,6 +26,7 @@ public class PaginatorTester extends SimulateBaseDao{
         for(Map<String, Object> map : pageList){
             System.out.println(map);
         }
+
     }
 
 
@@ -35,8 +36,7 @@ public class PaginatorTester extends SimulateBaseDao{
         params.put("type",type);
         params.put("sortInfos",pageQuery.getSortInfoList());
 
-        return getSqlSession().selectList("financial.dict.find", params,
-                new RowBounds(pageQuery.getStartIndex(), pageQuery.getPageSize()));
+        return getSqlSession().selectList("financial.dict.find", params, pageQuery);
     }
 
 

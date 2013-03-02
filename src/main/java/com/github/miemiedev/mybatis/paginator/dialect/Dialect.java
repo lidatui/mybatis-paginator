@@ -1,4 +1,9 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
+
+import com.github.miemiedev.mybatis.paginator.SortInfo;
+
+import java.util.List;
+
 /**
  * 类似hibernate的Dialect,但只精简出分页部分
  * @author badqiu
@@ -42,6 +47,27 @@ public class Dialect {
      */
     public String getCountString(String sql){
         return "select count(1) from (" + sql + ")";
+    }
+
+    /**
+     * 将sql转换为带排序的SQL
+     * @param sql SQL语句
+     * @return 总记录数的sql
+     */
+    public String getSortString(String sql, List<SortInfo> sortInfos){
+        if(sortInfos == null || sortInfos.isEmpty()){
+            return sql;
+        }
+
+        StringBuffer buffer = new StringBuffer("select * from (").append(sql).append(") order by ");
+        for(SortInfo sortInfo : sortInfos){
+             buffer.append(sortInfo.getColumnName())
+                     .append(" ")
+                     .append(sortInfo.getSortStatus())
+                     .append(", ");
+        }
+        buffer.delete(buffer.length()-2, buffer.length());
+        return buffer.toString();
     }
     
 }

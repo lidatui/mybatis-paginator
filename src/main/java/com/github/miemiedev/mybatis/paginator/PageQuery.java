@@ -17,6 +17,8 @@
 package com.github.miemiedev.mybatis.paginator;
 
 
+import org.apache.ibatis.session.RowBounds;
+
 import java.util.List;
 
 /**
@@ -25,35 +27,35 @@ import java.util.List;
  * @author badqiu
  * @author hunhun
  */
-public class PageQuery implements java.io.Serializable {
+public class PageQuery extends RowBounds implements java.io.Serializable {
 	private static final long serialVersionUID = -8000900575354501298L;
 	/** 页数 */
 	private int page;
 	/** 分页大小 */
-	private int pageSize;
+	private int limit;
 	/** 分页排序信息 */
 	private List<SortInfo> sortInfoList;
 
 	public PageQuery() {
 	}
 
-	public PageQuery(int pageSize) {
-		this.pageSize = pageSize;
+	public PageQuery(int limit) {
+		this.limit = limit;
 	}
 
 	public PageQuery(PageQuery query) {
 		this.page = query.page;
-		this.pageSize = query.pageSize;
+		this.limit = query.limit;
 	}
 
-	public PageQuery(int page, int pageSize) {
+	public PageQuery(int page, int limit) {
 		this.page = page;
-		this.pageSize = pageSize;
+		this.limit = limit;
 	}
 
-    public PageQuery(int page, int pageSize, List<SortInfo> sortInfoList) {
+    public PageQuery(int page, int limit, List<SortInfo> sortInfoList) {
         this.page = page;
-        this.pageSize = pageSize;
+        this.limit = limit;
         this.sortInfoList = sortInfoList;
     }
 
@@ -65,15 +67,15 @@ public class PageQuery implements java.io.Serializable {
 		this.page = page;
 	}
 
-	public int getPageSize() {
-		return pageSize;
-	}
+    public int getLimit() {
+        return limit;
+    }
 
-	public void setPageSize(int pageSize) {
-		this.pageSize = pageSize;
-	}
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
 
-	public List<SortInfo> getSortInfoList() {
+    public List<SortInfo> getSortInfoList() {
 		return sortInfoList;
 	}
 
@@ -81,19 +83,20 @@ public class PageQuery implements java.io.Serializable {
 		this.sortInfoList = sortInfoList;
 	}
 
-    public int getStartIndex(){
+    @Override
+    public int getOffset() {
         if(page >= 1){
-            return (page-1) * pageSize;
+            return (page-1) * limit;
         }
         return 0;
     }
 
-	@Override
+    @Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("PageQuery");
 		sb.append("{page=").append(page);
-		sb.append(", pageSize=").append(pageSize);
+		sb.append(", limit=").append(limit);
 		sb.append(", sortInfoList=").append(sortInfoList);
 		sb.append('}');
 		return sb.toString();
