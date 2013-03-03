@@ -17,23 +17,13 @@
 package com.github.miemiedev.mybatis.paginator;
 
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
-import org.apache.ibatis.executor.ErrorContext;
-import org.apache.ibatis.executor.ExecutorException;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.ParameterMode;
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.JdbcType;
-import org.apache.ibatis.type.TypeHandler;
-import org.apache.ibatis.type.TypeHandlerRegistry;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  *
@@ -65,7 +55,10 @@ public class SQLHelp {
 			countStmt = connection.prepareStatement(count_sql);
 			final BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), count_sql,
 					boundSql.getParameterMappings(), parameterObject);
-			SQLHelp.setParameters(countStmt, mappedStatement, countBS, parameterObject);
+
+            DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement,parameterObject,countBS);
+            handler.setParameters(countStmt);
+
 			rs = countStmt.executeQuery();
 			int count = 0;
 			if (rs.next()) {
@@ -81,50 +74,5 @@ public class SQLHelp {
 			}
 		}
 	}
-
-	/**
-	 * 对SQL参数(?)设值
-	 *
-	 * @param ps              表示预编译的 SQL 语句的对象。
-	 * @param mappedStatement MappedStatement
-	 * @param boundSql        SQL
-	 * @param parameterObject 参数对象
-	 * @throws java.sql.SQLException 数据库异常
-	 * @see org.apache.ibatis.scripting.defaults.DefaultParameterHandler
-	 */
-	@SuppressWarnings("unchecked")
-    public static void setParameters(PreparedStatement ps,MappedStatement mappedStatement,  BoundSql boundSql ,Object parameterObject) throws SQLException {
-        Configuration configuration = mappedStatement.getConfiguration();
-        TypeHandlerRegistry typeHandlerRegistry = mappedStatement.getConfiguration().getTypeHandlerRegistry();
-
-        ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
-        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-        if (parameterMappings != null) {
-            MetaObject metaObject = parameterObject == null ? null : configuration.newMetaObject(parameterObject);
-            for (int i = 0; i < parameterMappings.size(); i++) {
-                ParameterMapping parameterMapping = parameterMappings.get(i);
-                if (parameterMapping.getMode() != ParameterMode.OUT) {
-                    Object value;
-                    String propertyName = parameterMapping.getProperty();
-                    if (boundSql.hasAdditionalParameter(propertyName)) { // issue #448 ask first for additional params
-                        value = boundSql.getAdditionalParameter(propertyName);
-                    } else if (parameterObject == null) {
-                        value = null;
-                    } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
-                        value = parameterObject;
-                    } else {
-                        value = metaObject == null ? null : metaObject.getValue(propertyName);
-                    }
-                    TypeHandler typeHandler = parameterMapping.getTypeHandler();
-                    if (typeHandler == null) {
-                        throw new ExecutorException("There was no TypeHandler found for parameter " + propertyName + " of statement " + mappedStatement.getId());
-                    }
-                    JdbcType jdbcType = parameterMapping.getJdbcType();
-                    if (value == null && jdbcType == null) jdbcType = configuration.getJdbcTypeForNull();
-                    typeHandler.setParameter(ps, i + 1, value, jdbcType);
-                }
-            }
-        }
-    }
 
 }
