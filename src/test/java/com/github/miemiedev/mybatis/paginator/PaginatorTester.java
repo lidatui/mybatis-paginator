@@ -13,7 +13,7 @@ import java.util.Map;
 public class PaginatorTester extends SimulateBaseDao{
 
     @Test
-    public void actionCall(){
+    public void controllerMethod(){
         int page = 1;
         int pageSize = 20;
         String sortString = "type.asc,code.desc";
