@@ -1,7 +1,7 @@
 package com.github.miemiedev.mybatis.paginator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.miemiedev.mybatis.paginator.jackson.PageListJsonMapper;
+import com.github.miemiedev.mybatis.paginator.jackson2.PageListJsonMapper;
 import org.junit.Test;
 
 import java.io.IOException;

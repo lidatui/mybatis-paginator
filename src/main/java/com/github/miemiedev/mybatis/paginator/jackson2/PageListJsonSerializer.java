@@ -1,4 +1,4 @@
-package com.github.miemiedev.mybatis.paginator.jackson;
+package com.github.miemiedev.mybatis.paginator.jackson2;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
