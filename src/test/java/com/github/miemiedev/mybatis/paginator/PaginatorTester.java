@@ -36,8 +36,4 @@ public class PaginatorTester extends SimulateBaseDao{
         return (L)getSqlSession().selectList("financial.dict.find", params, pageQuery);
     }
 
-
-
-
-
 }
