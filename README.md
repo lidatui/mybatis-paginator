@@ -1,6 +1,7 @@
 支持mybatis版本 >= 3.1
 
 使用方式 [这里](https://github.com/miemiedev/mybatis-paginator/blob/master/src/test/java/com/github/miemiedev/mybatis/paginator/PaginatorTester.java)
+
 配置方式 [这里](https://github.com/miemiedev/mybatis-paginator/blob/master/src/test/resources/mybatis-config.xml)
 
 Spring MVC的配置
