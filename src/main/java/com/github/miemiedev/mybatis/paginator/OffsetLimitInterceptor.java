@@ -128,7 +128,12 @@ public class OffsetLimitInterceptor implements Interceptor{
 		builder.statementType(ms.getStatementType());
 		builder.keyGenerator(ms.getKeyGenerator());
 		if(ms.getKeyProperties() != null && ms.getKeyProperties().length !=0){
-			builder.keyProperty(ms.getKeyProperties()[0]);
+            StringBuffer keyProperties = new StringBuffer();
+            for(String keyProperty : ms.getKeyProperties()){
+                keyProperties.append(keyProperty).append(",");
+            }
+            keyProperties.delete(keyProperties.length()-1, keyProperties.length());
+			builder.keyProperty(keyProperties.toString());
 		}
 		
 		//setStatementTimeout()
