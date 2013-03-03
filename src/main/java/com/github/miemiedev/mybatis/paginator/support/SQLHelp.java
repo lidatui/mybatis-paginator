@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.miemiedev.mybatis.paginator;
+package com.github.miemiedev.mybatis.paginator.support;
 
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
 import org.apache.ibatis.mapping.BoundSql;

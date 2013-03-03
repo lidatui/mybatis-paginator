@@ -2,6 +2,8 @@ package com.github.miemiedev.mybatis.paginator;
 
 
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
+import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
+import com.github.miemiedev.mybatis.paginator.support.SQLHelp;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;

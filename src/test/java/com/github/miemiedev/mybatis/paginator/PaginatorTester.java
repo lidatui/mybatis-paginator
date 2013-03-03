@@ -24,13 +24,13 @@ public class PaginatorTester extends SimulateBaseDao{
 
         List list = find("FP_FUND",pageQuery);
 
-        //convert to json , for spring mvc
-        ObjectMapper objectMapper = new PageListJsonMapper();
-        objectMapper.writeValue(System.out, list);
-
         //get totalCount
         PageList pageList = (PageList)list;
         System.out.println("totalCount: " + pageList.getPaginator().getTotalCount());
+
+        //convert to json , for spring mvc
+        ObjectMapper objectMapper = new PageListJsonMapper();
+        objectMapper.writeValue(System.out, list);
     }
 
     public List find(String type, PageQuery pageQuery){

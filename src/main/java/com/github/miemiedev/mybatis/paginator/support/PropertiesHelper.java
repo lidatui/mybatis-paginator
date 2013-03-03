@@ -1,4 +1,4 @@
-package com.github.miemiedev.mybatis.paginator;
+package com.github.miemiedev.mybatis.paginator.support;
 
 import java.io.*;
 import java.util.*;
