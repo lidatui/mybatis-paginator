@@ -19,6 +19,7 @@ package com.github.miemiedev.mybatis.paginator;
 
 import org.apache.ibatis.session.RowBounds;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ import java.util.List;
  */
 public class PageQuery extends RowBounds implements java.io.Serializable {
 	private static final long serialVersionUID = -8000900575354501298L;
+    public final static int NO_PAGE = 1;
 	/** 页数 */
 	private int page;
 	/** 分页大小 */
@@ -37,27 +39,54 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
 	private List<SortInfo> sortInfoList;
 
 	public PageQuery() {
+        this.page = NO_PAGE;
+        this.limit = NO_ROW_LIMIT;
+        this.sortInfoList = new ArrayList();
 	}
 
 	public PageQuery(int limit) {
+        this.page = NO_PAGE;
 		this.limit = limit;
+        this.sortInfoList = new ArrayList();
 	}
 
 	public PageQuery(PageQuery query) {
 		this.page = query.page;
 		this.limit = query.limit;
+        this.sortInfoList = query.sortInfoList;
 	}
 
 	public PageQuery(int page, int limit) {
 		this.page = page;
 		this.limit = limit;
+        this.sortInfoList = new ArrayList();
 	}
+
+    public PageQuery(SortInfo sortInfo) {
+        this.page = NO_PAGE;
+        this.limit = NO_ROW_LIMIT;
+        this.sortInfoList = new ArrayList();
+        if(sortInfo != null){
+            this.sortInfoList.add(sortInfo);
+        }
+    }
+
+    public PageQuery(int page, int limit, SortInfo sortInfo) {
+        this.page = page;
+        this.limit = limit;
+        this.sortInfoList = new ArrayList();
+        if(sortInfo != null){
+            this.sortInfoList.add(sortInfo);
+        }
+    }
 
     public PageQuery(int page, int limit, List<SortInfo> sortInfoList) {
         this.page = page;
         this.limit = limit;
         this.sortInfoList = sortInfoList;
     }
+
+
 
 	public int getPage() {
 		return page;
