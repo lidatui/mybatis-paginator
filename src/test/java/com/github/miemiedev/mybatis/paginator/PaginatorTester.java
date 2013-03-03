@@ -1,8 +1,6 @@
 package com.github.miemiedev.mybatis.paginator;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.github.miemiedev.mybatis.paginator.jackson.PageListJsonMapper;
 import org.junit.Test;
 
