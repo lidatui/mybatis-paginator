@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * User: miemiedev
+ * @author miemiedev
  */
 
 public class PaginatorTester extends SimulateBaseDao{
@@ -27,7 +27,6 @@ public class PaginatorTester extends SimulateBaseDao{
         }
 
     }
-
 
     public <L extends List> L find(String type, PageQuery pageQuery){
 
