@@ -1,4 +1,3 @@
-
 package com.github.miemiedev.mybatis.paginator;
 
 import java.io.Serializable;
