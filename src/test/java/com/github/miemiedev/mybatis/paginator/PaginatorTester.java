@@ -13,14 +13,14 @@ import java.util.Map;
 public class PaginatorTester extends SimulateBaseDao{
 
     @Test
-    public void call(){
+    public void actionCall(){
         int page = 1;
         int pageSize = 20;
         String sortString = "type.asc,code.desc";
         PageQuery pageQuery = new PageQuery(page, pageSize, SortInfo.parseSortColumns(sortString));
 
         PageList<Map<String, Object>> pageList = (PageList<Map<String, Object>>) find("FP_FUND",pageQuery);
-        System.out.println(pageList.getPaginator());
+        System.out.println(pageList.getPaginator()); //output: Paginator{page=1, pageSize=20, totalCount=38}
 
         for(Map<String, Object> map : pageList){
             System.out.println(map);
