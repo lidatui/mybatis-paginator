@@ -57,7 +57,7 @@ public class SortInfo implements Serializable{
 	}
 
     public static SortInfo parseSortColumn(String sortSegment) {
-        if(sortSegment == null || sortSegment.trim().equals("")){
+        if(sortSegment == null || sortSegment.trim().equals("") || sortSegment.startsWith("null.") ||  sortSegment.startsWith(".")){
             return null;
         }
 
