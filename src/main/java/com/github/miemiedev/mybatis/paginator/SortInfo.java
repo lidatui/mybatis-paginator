@@ -1,5 +1,8 @@
 package com.github.miemiedev.mybatis.paginator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.regex.Pattern;
  * @author miemiedev
  */
 public class SortInfo implements Serializable{
+    private static Logger logger = LoggerFactory.getLogger(SortInfo.class);
     private String columnName;
 	private String sortStatus;
 	
@@ -60,8 +64,12 @@ public class SortInfo implements Serializable{
         if(sortSegment == null || sortSegment.trim().equals("") ||
                 sortSegment.startsWith("null.") ||  sortSegment.startsWith(".") ||
                 isSQLInjection(sortSegment)){
+
+            logger.warn("Could not parse SortInfo from {} string.", sortSegment);
             return null;
         }
+
+
 
         String[] array = sortSegment.trim().split("\\.");
         SortInfo sortInfo = new SortInfo();
