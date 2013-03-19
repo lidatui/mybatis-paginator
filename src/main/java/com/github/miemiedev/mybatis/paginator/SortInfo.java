@@ -10,8 +10,6 @@ import java.util.List;
  * @author miemiedev
  */
 public class SortInfo implements Serializable{
-    private static String INJECT_STRING = " ' | and | exec | insert | select | delete | update | count | * | % | chr | mid | master | truncate | char | declare | ; | or | - | + | , ";
-
     private String columnName;
 	private String sortStatus;
 	
@@ -59,13 +57,6 @@ public class SortInfo implements Serializable{
     public static SortInfo parseSortColumn(String sortSegment) {
         if(sortSegment == null || sortSegment.trim().equals("") || sortSegment.startsWith("null.") ||  sortSegment.startsWith(".")){
             return null;
-        }
-
-        String[] injectStrings = INJECT_STRING.split("\\|");
-        for (int i=0 ; i < injectStrings.length ; i++ ){
-              if (sortSegment.toLowerCase().contains(injectStrings[i])){
-                  return null;
-              }
         }
 
         String[] array = sortSegment.trim().split("\\.");
