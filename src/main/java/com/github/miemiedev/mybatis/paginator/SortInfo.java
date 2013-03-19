@@ -3,6 +3,8 @@ package com.github.miemiedev.mybatis.paginator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 排序的列
@@ -55,7 +57,9 @@ public class SortInfo implements Serializable{
 	}
 
     public static SortInfo parseSortColumn(String sortSegment) {
-        if(sortSegment == null || sortSegment.trim().equals("") || sortSegment.startsWith("null.") ||  sortSegment.startsWith(".")){
+        if(sortSegment == null || sortSegment.trim().equals("") ||
+                sortSegment.startsWith("null.") ||  sortSegment.startsWith(".") ||
+                isSQLInjection(sortSegment)){
             return null;
         }
 
@@ -69,4 +73,9 @@ public class SortInfo implements Serializable{
 	public String toString() {
 		return columnName + (sortStatus == null ? "" : " " + sortStatus);
 	}
+
+    private static String INJECTION_REGEX = "[A-Za-z0-9\\_\\-\\+\\.]+";
+    public static boolean isSQLInjection(String str){
+        return !Pattern.matches(INJECTION_REGEX,str);
+    }
 }
