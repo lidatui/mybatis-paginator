@@ -10,7 +10,7 @@ import java.util.List;
  * @author miemiedev
  */
 public class SortInfo implements Serializable{
-    private static String INJECT_STRING = "'|and|exec|insert|select|delete|update|count|*|%|chr|mid|master|truncate|char|declare|;|or|-|+|,";
+    private static String INJECT_STRING = " ' | and | exec | insert | select | delete | update | count | * | % | chr | mid | master | truncate | char | declare | ; | or | - | + | , ";
 
     private String columnName;
 	private String sortStatus;
