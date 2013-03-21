@@ -74,7 +74,7 @@ public class OffsetLimitInterceptor implements Interceptor{
                 int count = SQLHelp.getCount(sql, connection, ms, parameter, boundSql, dialect);
                 paginator = new Paginator((offset/limit)+1, limit, count);
             } catch (SQLException e) {
-                logger.error("The total number of access to the database failure.", e);
+                logger.error("The total number of access to the database failure.");
             } finally {
                 try {
                     if (connection != null && !connection.isClosed()) {
