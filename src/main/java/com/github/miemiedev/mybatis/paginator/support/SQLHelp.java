@@ -19,6 +19,8 @@ package com.github.miemiedev.mybatis.paginator.support;
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,7 +33,7 @@ import java.sql.SQLException;
  * @author miemiedev
  */
 public class SQLHelp {
-
+    private static Logger logger = LoggerFactory.getLogger(SQLHelp.class);
 
 	/**
 	 * 查询总纪录数
@@ -49,6 +51,7 @@ public class SQLHelp {
 							   final MappedStatement mappedStatement, final Object parameterObject,
 							   final BoundSql boundSql, Dialect dialect) throws SQLException {
 		final String count_sql = dialect.getCountString(sql);
+        logger.debug("Total count SQL [{}] ", count_sql);
 		PreparedStatement countStmt = null;
 		ResultSet rs = null;
 		try {

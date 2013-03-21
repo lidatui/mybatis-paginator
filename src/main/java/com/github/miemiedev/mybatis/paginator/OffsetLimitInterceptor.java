@@ -36,7 +36,6 @@ import java.util.Properties;
 		method = "query",
 		args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 public class OffsetLimitInterceptor implements Interceptor{
-    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	static int MAPPED_STATEMENT_INDEX = 0;
 	static int PARAMETER_INDEX = 1;
@@ -54,7 +53,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 		return invocation.proceed();
 	}
 
-    Paginator processIntercept(final Object[] queryArgs) {
+    Paginator processIntercept(final Object[] queryArgs) throws SQLException {
 		//queryArgs = query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler)
 		MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
 		Object parameter = queryArgs[PARAMETER_INDEX];
@@ -73,15 +72,9 @@ public class OffsetLimitInterceptor implements Interceptor{
                 connection = ms.getConfiguration().getEnvironment().getDataSource().getConnection();
                 int count = SQLHelp.getCount(sql, connection, ms, parameter, boundSql, dialect);
                 paginator = new Paginator((offset/limit)+1, limit, count);
-            } catch (SQLException e) {
-                logger.error("Query total count SQL [{}] error: {}", sql, e.getMessage());
-            } finally {
-                try {
-                    if (connection != null && !connection.isClosed()) {
-                        connection.close();
-                    }
-                } catch (SQLException e) {
-                    logger.error("Close the database connection error.", e);
+            }finally {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
                 }
             }
 
