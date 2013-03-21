@@ -20,7 +20,7 @@ Spring MVC的配置
 </mvc:annotation-driven>
 ```
 
-在Spring和Mybatis中使用这个插件也可以参考 -> [spring-mybaits-template](https://github.com/miemiedev/spring-mybaits-template)
+在Spring+Mybatis中使用这个插件也可以参考 -> [spring-mybaits-template](https://github.com/miemiedev/spring-mybaits-template)
 
 
 这个库参考了[rapid-framework](https://code.google.com/p/rapid-framework) 和 [mybatis-pagination](https://github.com/yfyang/mybatis-pagination) 的实现，并使用了其中的部分代码片段，在此感谢。
