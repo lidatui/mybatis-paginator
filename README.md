@@ -19,4 +19,8 @@ Spring MVC的配置
     </mvc:message-converters>
 </mvc:annotation-driven>
 ```
-这个库是从 [rapid-framework](https://code.google.com/p/rapid-framework) 和 [mybatis-pagination](https://github.com/yfyang/mybatis-pagination) 的代码片段上修改而来的，在此感谢。
+
+在Spring和Mybatis中使用这个插件也可以参考[spring-mybaits-template](https://github.com/miemiedev/spring-mybaits-template)
+
+
+这个库参考了[rapid-framework](https://code.google.com/p/rapid-framework) 和 [mybatis-pagination](https://github.com/yfyang/mybatis-pagination) ，并使用了其中的部分代码片段，在此感谢。
