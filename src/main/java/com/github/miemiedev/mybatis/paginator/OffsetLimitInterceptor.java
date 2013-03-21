@@ -179,5 +179,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 		}
 	}
 
-	
+    public void setDialect(Dialect dialect) {
+        this.dialect = dialect;
+    }
 }
