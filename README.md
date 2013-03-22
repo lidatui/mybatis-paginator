@@ -6,4 +6,4 @@ Plugin config -->  [here](https://github.com/miemiedev/mybatis-paginator/blob/ma
 
 Use in Spring+Mybatis -->  [spring-mybaits-template](https://github.com/miemiedev/spring-mybaits-template)
 
-Thanks for [rapid-framework](https://code.google.com/p/rapid-framework) and [mybatis-pagination](https://github.com/yfyang/mybatis-pagination) author。
+Thanks for [rapid-framework](https://code.google.com/p/rapid-framework) and [plum](https://github.com/yfyang/plum) author。
