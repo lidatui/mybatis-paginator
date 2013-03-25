@@ -32,22 +32,17 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
 	private static final long serialVersionUID = -8000900575354501298L;
     public final static int NO_PAGE = 1;
 	/** 页数 */
-	private int page;
+	private int page = NO_PAGE;
 	/** 分页大小 */
-	private int limit;
+	private int limit = NO_ROW_LIMIT;
 	/** 分页排序信息 */
-	private List<SortInfo> sortInfoList;
+	private List<SortInfo> sortInfoList = new ArrayList<SortInfo>();
 
 	public PageQuery() {
-        this.page = NO_PAGE;
-        this.limit = NO_ROW_LIMIT;
-        this.sortInfoList = new ArrayList();
 	}
 
 	public PageQuery(int limit) {
-        this.page = NO_PAGE;
 		this.limit = limit;
-        this.sortInfoList = new ArrayList();
 	}
 
 	public PageQuery(PageQuery query) {
@@ -63,12 +58,18 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
 	}
 
     public PageQuery(SortInfo sortInfo) {
-        this.page = NO_PAGE;
-        this.limit = NO_ROW_LIMIT;
         this.sortInfoList = new ArrayList();
         if(sortInfo != null){
             this.sortInfoList.add(sortInfo);
         }
+    }
+
+    public PageQuery(String sortString){
+        this(SortInfo.parseSortColumn(sortString,null));
+    }
+
+    public PageQuery(String sortString, String sortExpression){
+        this(SortInfo.parseSortColumn(sortString,sortExpression));
     }
 
     public PageQuery(int page, int limit, SortInfo sortInfo) {
@@ -86,22 +87,46 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
         this.sortInfoList = sortInfoList;
     }
 
+    public PageQuery(int page, int limit, String sortString){
+        this(page,limit, sortString, null);
+    }
+
+    public PageQuery(int page, int limit, String sortString, String sortExpression){
+        this(page,limit,SortInfo.parseSortColumns(sortString ,sortExpression));
+    }
+
+    public PageQuery addSortInfo(SortInfo sortInfo){
+        this.sortInfoList.add(sortInfo);
+        return this;
+    }
+
+    public PageQuery addSortInfo(String sortString, String sortExpression){
+        this.sortInfoList.addAll(SortInfo.parseSortColumns(sortString, sortExpression));
+        return this;
+    }
+
+    public PageQuery addSortInfo(String sortString){
+        return addSortInfo(sortString, null);
+    }
+
 
 
 	public int getPage() {
 		return page;
 	}
 
-	public void setPage(int page) {
+	public PageQuery setPage(int page) {
 		this.page = page;
+        return this;
 	}
 
     public int getLimit() {
         return limit;
     }
 
-    public void setLimit(int limit) {
+    public PageQuery setLimit(int limit) {
         this.limit = limit;
+        return this;
     }
 
     public List<SortInfo> getSortInfoList() {

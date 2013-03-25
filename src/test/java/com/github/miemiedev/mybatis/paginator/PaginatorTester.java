@@ -20,7 +20,10 @@ public class PaginatorTester extends SimulateBaseDao{
         int page = 1;
         int pageSize = 20;
         String sortString = "type.asc,code.desc";
-        PageQuery pageQuery = new PageQuery(page, pageSize, SortInfo.parseSortColumns(sortString));
+        String contentSortString = "content.desc";
+        PageQuery pageQuery = new PageQuery(page, pageSize , sortString)
+                //Oracle sorting of chinese pinyin
+                .addSortInfo(contentSortString, "nlssort( ? ,'NLS_SORT=SCHINESE_PINYIN_M')");
 
         List list = find("FP_FUND",pageQuery);
 

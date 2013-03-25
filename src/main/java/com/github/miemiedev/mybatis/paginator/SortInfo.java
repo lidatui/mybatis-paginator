@@ -44,33 +44,54 @@ public class SortInfo implements Serializable{
     }
 
     public static List<SortInfo> parseSortColumns(String sortColumns) {
-		if(sortColumns == null) {
-			return new ArrayList(0);
-		}
-		
-		List<SortInfo> results = new ArrayList();
-		String[] sortSegments = sortColumns.trim().split(",");
-		for(int i = 0; i < sortSegments.length; i++) {
-			String sortSegment = sortSegments[i];
-            SortInfo sortInfo = parseSortColumn(sortSegment);
+		return parseSortColumns(sortColumns, null);
+	}
+
+    public static List<SortInfo> parseSortColumns(String sortColumns, String sortExpression){
+        if(sortColumns == null) {
+            return new ArrayList(0);
+        }
+
+        List<SortInfo> results = new ArrayList();
+        String[] sortSegments = sortColumns.trim().split(",");
+        for(int i = 0; i < sortSegments.length; i++) {
+            String sortSegment = sortSegments[i];
+            SortInfo sortInfo = parseSortColumn(sortSegment, sortExpression);
             if(sortInfo != null){
                 results.add(sortInfo);
             }
-		}
-		return results;
-	}
+        }
+        return results;
+    }
 
     public static SortInfo parseSortColumn(String sortSegment) {
+        return parseSortColumn(sortSegment, null);
+    }
+
+    /**
+     *
+     * @param sortSegment  str "id.asc" or "code.desc"
+     * @param sortExpression  placeholder is "?", in oracle like: "nlssort( ? ,'NLS_SORT=SCHINESE_PINYIN_M')".
+     *                        Warning: you must prevent SQL injection.
+     * @return
+     */
+    public static SortInfo parseSortColumn(String sortSegment, String sortExpression){
+
+
         if(sortSegment == null || sortSegment.trim().equals("") ||
                 sortSegment.startsWith("null.") ||  sortSegment.startsWith(".") ||
                 isSQLInjection(sortSegment)){
-
             logger.warn("Could not parse SortInfo from {} string.", sortSegment);
             return null;
         }
 
         String[] array = sortSegment.trim().split("\\.");
         SortInfo sortInfo = new SortInfo();
+
+        if(sortExpression != null && sortExpression.indexOf("?") != -1){
+            sortExpression = sortExpression.replaceAll("\\?","%s");
+            array[0] = String.format(sortExpression,array[0]);
+        }
         sortInfo.setColumnName(array[0]);
         sortInfo.setSortStatus(array.length == 2 ? array[1] : "asc");
         return sortInfo;
