@@ -39,7 +39,6 @@ public class SQLHelp {
 	 * 查询总纪录数
 	 *
 	 * @param sql             SQL语句
-	 * @param connection      数据库连接
 	 * @param mappedStatement mapped
 	 * @param parameterObject 参数
 	 * @param boundSql        boundSql
@@ -47,14 +46,17 @@ public class SQLHelp {
 	 * @return 总记录数
 	 * @throws java.sql.SQLException sql查询错误
 	 */
-	public static int getCount(final String sql, final Connection connection,
+	public static int getCount(final String sql,
 							   final MappedStatement mappedStatement, final Object parameterObject,
 							   final BoundSql boundSql, Dialect dialect) throws SQLException {
 		final String count_sql = dialect.getCountString(sql);
         logger.debug("Total count SQL [{}] ", count_sql);
+
+        Connection connection = null;
 		PreparedStatement countStmt = null;
 		ResultSet rs = null;
 		try {
+            connection = mappedStatement.getConfiguration().getEnvironment().getDataSource().getConnection();
 			countStmt = connection.prepareStatement(count_sql);
 			final BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), count_sql,
 					boundSql.getParameterMappings(), parameterObject);
@@ -69,12 +71,21 @@ public class SQLHelp {
 			}
 			return count;
 		} finally {
-			if (rs != null) {
-				rs.close();
-			}
-			if (countStmt != null) {
-				countStmt.close();
-			}
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } finally {
+                try {
+                    if (countStmt != null) {
+                        countStmt.close();
+                    }
+                } finally {
+                    if (connection != null && !connection.isClosed()) {
+                        connection.close();
+                    }
+                }
+            }
 		}
 	}
 

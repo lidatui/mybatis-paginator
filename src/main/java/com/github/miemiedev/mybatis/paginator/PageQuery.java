@@ -37,63 +37,99 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
 	private int limit = NO_ROW_LIMIT;
 	/** 分页排序信息 */
 	private List<SortInfo> sortInfoList = new ArrayList<SortInfo>();
+    /** 结果集是否包含TotalCount */
+    private boolean containsTotalCount = true;
 
-	public PageQuery() {
-	}
+    public PageQuery(PageQuery query) {
+        this.page = query.page;
+        this.limit = query.limit;
+        this.sortInfoList = query.sortInfoList;
+        this.containsTotalCount = query.containsTotalCount;
+    }
 
 	public PageQuery(int limit) {
 		this.limit = limit;
 	}
 
-	public PageQuery(PageQuery query) {
-		this.page = query.page;
-		this.limit = query.limit;
-        this.sortInfoList = query.sortInfoList;
-	}
+    public PageQuery(int limit, boolean containsTotalCount) {
+        this.limit = limit;
+        this.containsTotalCount = containsTotalCount;
+    }
 
 	public PageQuery(int page, int limit) {
-		this.page = page;
-		this.limit = limit;
-        this.sortInfoList = new ArrayList();
+		this(page, limit, null, null);
 	}
 
-    public PageQuery(SortInfo sortInfo) {
-        this.sortInfoList = new ArrayList();
-        if(sortInfo != null){
-            this.sortInfoList.add(sortInfo);
-        }
+    public PageQuery(int page, int limit, boolean containsTotalCount) {
+        this(page, limit, null, null, containsTotalCount);
     }
 
     public PageQuery(String sortString){
         this(SortInfo.parseSortColumn(sortString,null));
     }
 
+    public PageQuery(String sortString, boolean containsTotalCount){
+        this(SortInfo.parseSortColumn(sortString,null), containsTotalCount);
+    }
+
     public PageQuery(String sortString, String sortExpression){
         this(SortInfo.parseSortColumn(sortString,sortExpression));
     }
 
-    public PageQuery(int page, int limit, SortInfo sortInfo) {
-        this.page = page;
-        this.limit = limit;
-        this.sortInfoList = new ArrayList();
-        if(sortInfo != null){
-            this.sortInfoList.add(sortInfo);
-        }
+    public PageQuery(String sortString, String sortExpression, boolean containsTotalCount){
+        this(SortInfo.parseSortColumn(sortString,sortExpression), containsTotalCount);
     }
 
-    public PageQuery(int page, int limit, List<SortInfo> sortInfoList) {
+    public PageQuery(SortInfo sortInfo) {
+        this(NO_PAGE, NO_ROW_LIMIT,sortInfo);
+    }
+
+    public PageQuery(SortInfo sortInfo, boolean containsTotalCount) {
+        this(NO_PAGE, NO_ROW_LIMIT,sortInfo, containsTotalCount);
+    }
+
+    public PageQuery(int page, int limit, SortInfo sortInfo) {
+        this(page, limit, sortInfo, true);
+    }
+
+    public PageQuery(int page, int limit, SortInfo sortInfo, boolean containsTotalCount) {
         this.page = page;
         this.limit = limit;
-        this.sortInfoList = sortInfoList;
+        if(sortInfo != null){
+            this.sortInfoList = new ArrayList();
+            this.sortInfoList.add(sortInfo);
+        }
+        this.containsTotalCount = containsTotalCount;
     }
 
     public PageQuery(int page, int limit, String sortString){
         this(page,limit, sortString, null);
     }
 
-    public PageQuery(int page, int limit, String sortString, String sortExpression){
-        this(page,limit,SortInfo.parseSortColumns(sortString ,sortExpression));
+    public PageQuery(int page, int limit, String sortString, boolean containsTotalCount){
+        this(page,limit, sortString, null, containsTotalCount);
     }
+
+    public PageQuery(int page, int limit, String sortString, String sortExpression){
+        this(page, limit, sortString, sortExpression, true);
+    }
+
+    public PageQuery(int page, int limit, String sortString, String sortExpression, boolean containsTotalCount){
+        this(page, limit, SortInfo.parseSortColumns(sortString ,sortExpression), containsTotalCount);
+    }
+
+    public PageQuery(int page, int limit, List<SortInfo> sortInfoList) {
+        this(page, limit, sortInfoList, true);
+    }
+
+    public PageQuery(int page, int limit, List<SortInfo> sortInfoList, boolean containsTotalCount) {
+        this.page = page;
+        this.limit = limit;
+        this.sortInfoList = sortInfoList;
+        this.containsTotalCount = containsTotalCount;
+    }
+
+
 
     public PageQuery addSortInfo(SortInfo sortInfo){
         this.sortInfoList.add(sortInfo);
@@ -129,6 +165,14 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
         return this;
     }
 
+    public boolean isContainsTotalCount() {
+        return containsTotalCount;
+    }
+
+    public void setContainsTotalCount(boolean containsTotalCount) {
+        this.containsTotalCount = containsTotalCount;
+    }
+
     public List<SortInfo> getSortInfoList() {
 		return sortInfoList;
 	}
@@ -146,13 +190,13 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
     }
 
     @Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append("PageQuery");
-		sb.append("{page=").append(page);
-		sb.append(", limit=").append(limit);
-		sb.append(", sortInfoList=").append(sortInfoList);
-		sb.append('}');
-		return sb.toString();
-	}
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("PageQuery{");
+        sb.append("page=").append(page);
+        sb.append(", limit=").append(limit);
+        sb.append(", sortInfoList=").append(sortInfoList);
+        sb.append(", containsTotalCount=").append(containsTotalCount);
+        sb.append('}');
+        return sb.toString();
+    }
 }

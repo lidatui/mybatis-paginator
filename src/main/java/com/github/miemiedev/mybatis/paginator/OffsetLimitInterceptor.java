@@ -66,21 +66,18 @@ public class OffsetLimitInterceptor implements Interceptor{
 			BoundSql boundSql = ms.getBoundSql(parameter);
 			String sql = boundSql.getSql().trim();
 
-            Connection connection = null;
-            try {
-                //query totalCount
-                connection = ms.getConfiguration().getEnvironment().getDataSource().getConnection();
-                int count = SQLHelp.getCount(sql, connection, ms, parameter, boundSql, dialect);
-                paginator = new Paginator((offset/limit)+1, limit, count);
-            }finally {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close();
-                }
-            }
-
             if(rowBounds instanceof PageQuery){
                 PageQuery pageQuery = (PageQuery)rowBounds;
+
+                if(pageQuery.isContainsTotalCount()){
+                    int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
+                    paginator = new Paginator((offset/limit)+1, limit, count);
+                }
+
                 sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+            }else{
+                int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
+                paginator = new Paginator((offset/limit)+1, limit, count);
             }
 
 			if (dialect.supportsLimitOffset()) {
