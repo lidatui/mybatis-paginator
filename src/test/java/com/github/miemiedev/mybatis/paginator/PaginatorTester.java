@@ -25,7 +25,7 @@ public class PaginatorTester extends SimulateBaseDao{
                 //Oracle sorting of chinese pinyin
                 .addSortInfo(contentSortString, "nlssort( ? ,'NLS_SORT=SCHINESE_PINYIN_M')");
 
-        List list = find("FP_FUND",new PageQuery(sortString));
+        List list = find("FP_FUND",pageQuery);
 
         //get totalCount
         PageList pageList = (PageList)list;
