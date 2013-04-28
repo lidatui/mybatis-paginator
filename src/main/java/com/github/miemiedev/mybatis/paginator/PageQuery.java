@@ -44,11 +44,18 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
 
     }
 
-    public PageQuery(PageQuery query) {
-        this.page = query.page;
-        this.limit = query.limit;
-        this.sortInfoList = query.sortInfoList;
-        this.containsTotalCount = query.containsTotalCount;
+    public PageQuery(RowBounds rowBounds) {
+        if(rowBounds instanceof PageQuery){
+            PageQuery pageQuery = (PageQuery)rowBounds;
+            this.page = pageQuery.page;
+            this.limit = pageQuery.limit;
+            this.sortInfoList = pageQuery.sortInfoList;
+            this.containsTotalCount = pageQuery.containsTotalCount;
+        }else{
+            this.page = (rowBounds.getOffset()/rowBounds.getLimit())+1;
+            this.limit = rowBounds.getLimit();
+        }
+
     }
 
 	public PageQuery(int limit) {

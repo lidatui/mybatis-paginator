@@ -58,29 +58,26 @@ public class OffsetLimitInterceptor implements Interceptor{
 		MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
 		Object parameter = queryArgs[PARAMETER_INDEX];
 		final RowBounds rowBounds = (RowBounds)queryArgs[ROWBOUNDS_INDEX];
-		int offset = rowBounds.getOffset();
-		int limit = rowBounds.getLimit();
+
+        PageQuery pageQuery = new PageQuery(rowBounds);
+
+		int offset = pageQuery.getOffset();
+		int limit = pageQuery.getLimit();
+        int page = pageQuery.getPage();
 
         Paginator paginator = null;
 
         BoundSql boundSql = ms.getBoundSql(parameter);
         String sql = boundSql.getSql().trim();
 
-        if(rowBounds instanceof PageQuery){
-            PageQuery pageQuery = (PageQuery)rowBounds;
-
-            if(pageQuery.isContainsTotalCount()){
-                int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
-                paginator = new Paginator((offset/limit)+1, limit, count);
-            }
-
-            sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
-        }else{
-            int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
-            paginator = new Paginator((offset/limit)+1, limit, count);
-        }
+        sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
 
         if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
+            if(pageQuery.isContainsTotalCount()){
+                int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
+                paginator = new Paginator(page, limit, count);
+            }
+
 			if (dialect.supportsLimitOffset()) {
 				sql = dialect.getLimitString(sql, offset, limit);
 				offset = RowBounds.NO_ROW_OFFSET;
@@ -90,8 +87,6 @@ public class OffsetLimitInterceptor implements Interceptor{
 			limit = RowBounds.NO_ROW_LIMIT;
 
 			queryArgs[ROWBOUNDS_INDEX] = new RowBounds(offset,limit);
-
-
 		}
 
         BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
