@@ -79,13 +79,17 @@ public class SortInfo implements Serializable{
 
 
         if(sortSegment == null || sortSegment.trim().equals("") ||
-                sortSegment.startsWith("null.") ||  sortSegment.startsWith(".") ||
-                isSQLInjection(sortSegment)){
+                sortSegment.startsWith("null.") ||  sortSegment.startsWith(".")){
             logger.warn("Could not parse SortInfo from {} string.", sortSegment);
             return null;
         }
 
         String[] array = sortSegment.trim().split("\\.");
+        if(isSQLInjection(array[0]) || isSQLInjection(array[1])){
+            logger.warn("SQLInjection ? -> {} .", sortSegment);
+            return null;
+        }
+
         SortInfo sortInfo = new SortInfo();
 
         if(sortExpression != null && sortExpression.indexOf("?") != -1){

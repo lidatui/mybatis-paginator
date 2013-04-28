@@ -40,6 +40,10 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
     /** 结果集是否包含TotalCount */
     private boolean containsTotalCount = true;
 
+    public PageQuery(){
+
+    }
+
     public PageQuery(PageQuery query) {
         this.page = query.page;
         this.limit = query.limit;
@@ -65,27 +69,19 @@ public class PageQuery extends RowBounds implements java.io.Serializable {
     }
 
     public PageQuery(String sortString){
-        this(SortInfo.parseSortColumn(sortString,null));
-    }
-
-    public PageQuery(String sortString, boolean containsTotalCount){
-        this(SortInfo.parseSortColumn(sortString,null), containsTotalCount);
+        this(SortInfo.parseSortColumns(sortString));
     }
 
     public PageQuery(String sortString, String sortExpression){
-        this(SortInfo.parseSortColumn(sortString,sortExpression));
-    }
-
-    public PageQuery(String sortString, String sortExpression, boolean containsTotalCount){
-        this(SortInfo.parseSortColumn(sortString,sortExpression), containsTotalCount);
+        this(SortInfo.parseSortColumns(sortString,sortExpression));
     }
 
     public PageQuery(SortInfo sortInfo) {
         this(NO_PAGE, NO_ROW_LIMIT,sortInfo);
     }
 
-    public PageQuery(SortInfo sortInfo, boolean containsTotalCount) {
-        this(NO_PAGE, NO_ROW_LIMIT,sortInfo, containsTotalCount);
+    public PageQuery(List<SortInfo> sortInfos) {
+        this(NO_PAGE, NO_ROW_LIMIT,sortInfos);
     }
 
     public PageQuery(int page, int limit, SortInfo sortInfo) {

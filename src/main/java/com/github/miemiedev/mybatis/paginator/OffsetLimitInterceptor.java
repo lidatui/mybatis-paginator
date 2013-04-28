@@ -62,24 +62,25 @@ public class OffsetLimitInterceptor implements Interceptor{
 		int limit = rowBounds.getLimit();
 
         Paginator paginator = null;
-		if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
-			BoundSql boundSql = ms.getBoundSql(parameter);
-			String sql = boundSql.getSql().trim();
 
-            if(rowBounds instanceof PageQuery){
-                PageQuery pageQuery = (PageQuery)rowBounds;
+        BoundSql boundSql = ms.getBoundSql(parameter);
+        String sql = boundSql.getSql().trim();
 
-                if(pageQuery.isContainsTotalCount()){
-                    int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
-                    paginator = new Paginator((offset/limit)+1, limit, count);
-                }
+        if(rowBounds instanceof PageQuery){
+            PageQuery pageQuery = (PageQuery)rowBounds;
 
-                sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
-            }else{
+            if(pageQuery.isContainsTotalCount()){
                 int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
                 paginator = new Paginator((offset/limit)+1, limit, count);
             }
 
+            sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+        }else{
+            int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
+            paginator = new Paginator((offset/limit)+1, limit, count);
+        }
+
+        if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
 			if (dialect.supportsLimitOffset()) {
 				sql = dialect.getLimitString(sql, offset, limit);
 				offset = RowBounds.NO_ROW_OFFSET;
@@ -87,14 +88,15 @@ public class OffsetLimitInterceptor implements Interceptor{
 				sql = dialect.getLimitString(sql, 0, limit);
 			}
 			limit = RowBounds.NO_ROW_LIMIT;
-			
+
 			queryArgs[ROWBOUNDS_INDEX] = new RowBounds(offset,limit);
-			
-			BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
-			
-			MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
-			queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
+
+
 		}
+
+        BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
+        MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
+        queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
 
         return paginator;
 	}
