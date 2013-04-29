@@ -18,15 +18,18 @@ public class SortInfo implements Serializable{
     private static Logger logger = LoggerFactory.getLogger(SortInfo.class);
     private String columnName;
 	private String sortStatus;
+    private String sortExpression;
 	
 	public SortInfo() {
 	}
 	
-	public SortInfo(String columnName, String sortStatus) {
+	public SortInfo(String columnName, String sortStatus ,String sortExpression) {
 		super();
 		this.columnName = columnName;
 		this.sortStatus = sortStatus;
+        this.sortExpression = sortExpression;
 	}
+
 
 	public String getColumnName() {
 		return columnName;
@@ -41,6 +44,14 @@ public class SortInfo implements Serializable{
 
     public void setSortStatus(String sortStatus) {
         this.sortStatus = sortStatus;
+    }
+
+    public String getSortExpression() {
+        return sortExpression;
+    }
+
+    public void setSortExpression(String sortExpression) {
+        this.sortExpression = sortExpression;
     }
 
     public static List<SortInfo> parseSortColumns(String sortColumns) {
@@ -92,16 +103,17 @@ public class SortInfo implements Serializable{
 
         SortInfo sortInfo = new SortInfo();
 
-        if(sortExpression != null && sortExpression.indexOf("?") != -1){
-            sortExpression = sortExpression.replaceAll("\\?","%s");
-            array[0] = String.format(sortExpression,array[0]);
-        }
         sortInfo.setColumnName(array[0]);
         sortInfo.setSortStatus(array.length == 2 ? array[1] : "asc");
+        sortInfo.setSortExpression(sortExpression);
+
         return sortInfo;
     }
 	
 	public String toString() {
+        if(sortExpression != null && sortExpression.indexOf("?") != -1){
+            return String.format(sortExpression.replaceAll("\\?","%s"), columnName) + (sortStatus == null ? "" : " " + sortStatus);
+        }
 		return columnName + (sortStatus == null ? "" : " " + sortStatus);
 	}
 
