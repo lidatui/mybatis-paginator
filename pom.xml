@@ -7,6 +7,29 @@
     <groupId>com.github.miemiedev</groupId>
     <artifactId>mybatis-paginator</artifactId>
     <version>1.0.9</version>
+    <packaging>jar</packaging>
+    <name>mybatis-paginator</name>
+    <description>A Mybatis plugin, implementation of database paging and sorting</description>
+    <url>https://github.com/miemiedev/mybatis-paginator</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git@github.com:miemiedev/mybatis-paginator.git</connection>
+        <developerConnection>scm:git:git@github.com:miemiedev/mybatis-paginator.git</developerConnection>
+        <url>git@github.com:miemiedev/mybatis-paginator.git</url>
+    </scm>
+    <developers>
+        <developer>
+            <id>miemiedev</id>
+            <name>Bin Li</name>
+            <email>miemiedev@gmail.com</email>
+        </developer>
+    </developers>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,6 +45,19 @@
                     <source>1.5</source>
                     <target>1.5</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
