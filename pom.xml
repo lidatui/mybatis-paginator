@@ -25,9 +25,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@github.com:miemiedev/mybatis-paginator.git</connection>
-        <developerConnection>scm:git:git@github.com:miemiedev/mybatis-paginator.git</developerConnection>
-        <url>git@github.com:miemiedev/mybatis-paginator.git</url>
+        <connection>scm:git:https://github.com/miemiedev/mybatis-paginator.git</connection>
+        <developerConnection>scm:git:https://github.com/miemiedev/mybatis-paginator.git</developerConnection>
+        <url>https://github.com/miemiedev/mybatis-paginator.git</url>
     </scm>
     <developers>
         <developer>
