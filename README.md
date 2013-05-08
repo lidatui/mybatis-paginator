@@ -8,11 +8,11 @@ Use in Spring+Mybatis -->  [spring-mybaits-template](https://github.com/miemiede
 
 Maven repository
 ```xml
-    <dependency>
-        <groupId>com.github.miemiedev</groupId>
-        <artifactId>mybatis-paginator</artifactId>
-        <version>1.0.9</version>
-    </dependency>
+<dependency>
+    <groupId>com.github.miemiedev</groupId>
+    <artifactId>mybatis-paginator</artifactId>
+    <version>1.0.9</version>
+</dependency>
 ```
 
 Thanks for [rapid-framework](https://code.google.com/p/rapid-framework) and [plum](https://github.com/yfyang/plum) author。
