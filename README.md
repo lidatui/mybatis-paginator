@@ -6,13 +6,18 @@ Plugin config -->  [here](https://github.com/miemiedev/mybatis-paginator/blob/ma
 
 Use in Spring+Mybatis -->  [spring-mybaits-template](https://github.com/miemiedev/spring-mybaits-template)
 
-Maven repository
+
+Downloading from the Maven central repository
 ```xml
-<dependency>
-    <groupId>com.github.miemiedev</groupId>
-    <artifactId>mybatis-paginator</artifactId>
-    <version>1.0.9</version>
-</dependency>
+<dependencies>
+  ...
+    <dependency>
+        <groupId>com.github.miemiedev</groupId>
+        <artifactId>mybatis-paginator</artifactId>
+        <version>1.0.9</version>
+    </dependency>
+ ...
+</dependencies>
 ```
 
 Thanks for [rapid-framework](https://code.google.com/p/rapid-framework) and [plum](https://github.com/yfyang/plum) author。
