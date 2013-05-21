@@ -19,13 +19,13 @@ public class PaginatorTester extends SimulateBaseDao{
     public void controllerMethod() throws IOException {
         int page = 1;
         int pageSize = 20;
-        String sortString = "type.asc,code.desc";
-        String contentSortString = "content.desc";
+        String sortString = "age.asc,gender.desc";
+        String contentSortString = "name.desc";
         PageQuery pageQuery = new PageQuery(page, pageSize , sortString)
                 //Oracle sorting of chinese pinyin
                 .addSortInfo(contentSortString, "nlssort( ? ,'NLS_SORT=SCHINESE_PINYIN_M')");
 
-        List list = find("FP_FUND",pageQuery);
+        List list = findByAge(30,pageQuery);
 
         //get totalCount
         PageList pageList = (PageList)list;
@@ -36,12 +36,12 @@ public class PaginatorTester extends SimulateBaseDao{
         objectMapper.writeValue(System.out, list);
     }
 
-    public List find(String type, PageQuery pageQuery){
+    public List findByAge(Integer age, PageQuery pageQuery){
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("type",type);
+        params.put("age",age);
 
-        return getSqlSession().selectList("db.table.dict.find", params, pageQuery);
+        return getSqlSession().selectList("db.table.user.find", params, pageQuery);
     }
 
 }

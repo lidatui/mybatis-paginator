@@ -3,7 +3,9 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-
+    <settings>
+        <setting name="jdbcTypeForNull" value="NULL"/>
+    </settings>
     <plugins>
         <plugin interceptor="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor">
             <property name="dialectClass" value="com.github.miemiedev.mybatis.paginator.dialect.OracleDialect"/>
@@ -25,7 +27,7 @@
 
 
     <mappers>
-        <mapper resource="Dict.mbts.xml"/>
+        <mapper resource="User.mbts.xml"/>
     </mappers>
 
 

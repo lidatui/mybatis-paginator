@@ -2,10 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="db.table.dict">
+<mapper namespace="db.table.user">
 
 	<select id="find" resultType="map">
-		select * from FP_BASE_DICT where type like #{type} || '%';
+		select * from TEST_USER where age = #{age}
 	</select>
 
 </mapper>
