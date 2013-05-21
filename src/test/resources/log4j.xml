@@ -8,7 +8,11 @@
 		</layout>
 	</appender>
 
-	<category name="financial" additivity="false">
+	<category name="db.table" additivity="false">
+        <priority value="DEBUG" />
+        <appender-ref ref="CONSOLE" />
+    </category>
+    <category name="com.github.miemiedev" additivity="false">
         <priority value="DEBUG" />
         <appender-ref ref="CONSOLE" />
     </category>

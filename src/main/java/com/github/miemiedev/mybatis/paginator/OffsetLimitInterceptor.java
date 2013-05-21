@@ -83,18 +83,15 @@ public class OffsetLimitInterceptor implements Interceptor{
                 String count_sql = dialect.getCountString(sql);
                 logger.debug("Total count SQL [{}] ", count_sql);
                 int count = SQLHelp.getCount(sql, ms, parameter, boundSql);
+                logger.debug("Total count: {}", count);
                 paginator = new Paginator(page, limit, count);
             }
 
 			if (dialect.supportsLimitOffset()) {
 				sql = dialect.getLimitString(sql, offset, limit);
-				offset = RowBounds.NO_ROW_OFFSET;
 			} else {
 				sql = dialect.getLimitString(sql, 0, limit);
 			}
-			limit = RowBounds.NO_ROW_LIMIT;
-
-			queryArgs[ROWBOUNDS_INDEX] = new RowBounds(offset,limit);
 		}
 
         BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
