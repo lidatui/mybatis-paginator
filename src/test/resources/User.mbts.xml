@@ -5,7 +5,7 @@
 <mapper namespace="db.table.user">
 
 	<select id="find" resultType="map">
-		select * from TEST_USER where age = #{age}
+		select * from TEST_USER where age = #{age};
 	</select>
 
 </mapper>
