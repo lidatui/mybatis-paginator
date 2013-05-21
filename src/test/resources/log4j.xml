@@ -12,7 +12,7 @@
         <priority value="DEBUG" />
         <appender-ref ref="CONSOLE" />
     </category>
-    <category name="com.github.miemiedev" additivity="false">
+    <category name="com.github.miemiedev.mybatis.paginator" additivity="false">
         <priority value="DEBUG" />
         <appender-ref ref="CONSOLE" />
     </category>
