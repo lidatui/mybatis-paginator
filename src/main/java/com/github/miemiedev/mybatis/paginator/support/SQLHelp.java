@@ -16,11 +16,8 @@
 
 package com.github.miemiedev.mybatis.paginator.support;
 
-import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,32 +30,28 @@ import java.sql.SQLException;
  * @author miemiedev
  */
 public class SQLHelp {
-    private static Logger logger = LoggerFactory.getLogger(SQLHelp.class);
 
 	/**
 	 * 查询总纪录数
 	 *
-	 * @param sql             SQL语句
+	 * @param countSql             SQL语句
 	 * @param mappedStatement mapped
 	 * @param parameterObject 参数
 	 * @param boundSql        boundSql
-	 * @param dialect         database dialect
 	 * @return 总记录数
 	 * @throws java.sql.SQLException sql查询错误
 	 */
-	public static int getCount(final String sql,
+	public static int getCount(final String countSql,
 							   final MappedStatement mappedStatement, final Object parameterObject,
-							   final BoundSql boundSql, Dialect dialect) throws SQLException {
-		final String count_sql = dialect.getCountString(sql);
-        logger.debug("Total count SQL [{}] ", count_sql);
+							   final BoundSql boundSql) throws SQLException {
 
         Connection connection = null;
 		PreparedStatement countStmt = null;
 		ResultSet rs = null;
 		try {
             connection = mappedStatement.getConfiguration().getEnvironment().getDataSource().getConnection();
-			countStmt = connection.prepareStatement(count_sql);
-			final BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), count_sql,
+			countStmt = connection.prepareStatement(countSql);
+			final BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), countSql,
 					boundSql.getParameterMappings(), parameterObject);
 
             DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement,parameterObject,countBS);

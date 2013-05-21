@@ -37,6 +37,8 @@ import java.util.Properties;
 		args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 public class OffsetLimitInterceptor implements Interceptor{
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	static int MAPPED_STATEMENT_INDEX = 0;
 	static int PARAMETER_INDEX = 1;
 	static int ROWBOUNDS_INDEX = 2;
@@ -68,13 +70,19 @@ public class OffsetLimitInterceptor implements Interceptor{
         Paginator paginator = null;
 
         BoundSql boundSql = ms.getBoundSql(parameter);
-        String sql = boundSql.getSql().trim();
+        StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
+        if(bufferSql.lastIndexOf(";") == bufferSql.length()-1){
+            bufferSql.deleteCharAt(bufferSql.length()-1);
+        }
+        String sql = bufferSql.toString();
 
         sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
 
         if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
             if(pageQuery.isContainsTotalCount()){
-                int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
+                String count_sql = dialect.getCountString(sql);
+                logger.debug("Total count SQL [{}] ", count_sql);
+                int count = SQLHelp.getCount(sql, ms, parameter, boundSql);
                 paginator = new Paginator(page, limit, count);
             }
 
