@@ -25,7 +25,7 @@ public class PaginatorTester extends SimulateBaseDao{
                 //Oracle sorting of chinese pinyin
                 .addSortInfo(contentSortString, "nlssort( ? ,'NLS_SORT=SCHINESE_PINYIN_M')");
 
-        List list = findByAge(30,pageQuery);
+        List list = findByCity("BeiJing",pageQuery);
 
         //get totalCount
         PageList pageList = (PageList)list;
@@ -36,12 +36,12 @@ public class PaginatorTester extends SimulateBaseDao{
         objectMapper.writeValue(System.out, list);
     }
 
-    public List findByAge(Integer age, PageQuery pageQuery){
+    public List findByCity(String city, PageQuery pageQuery){
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("age",age);
+        params.put("city",city);
 
-        return getSqlSession().selectList("db.table.user.find", params, pageQuery);
+        return getSqlSession().selectList("db.table.user.findByCity", params, pageQuery);
     }
 
 }

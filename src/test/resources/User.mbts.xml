@@ -4,8 +4,8 @@
 
 <mapper namespace="db.table.user">
 
-	<select id="find" resultType="map">
-		select * from TEST_USER where age = #{age};
+	<select id="findByCity" resultType="map">
+		select * from TEST_USER where city = #{city};
 	</select>
 
 </mapper>
