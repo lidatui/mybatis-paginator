@@ -14,7 +14,7 @@ public class Paginator implements java.io.Serializable {
     /**
      * 分页大小
      */
-    private int pageSize;
+    private int limit;
     /**
      * 页数
      */
@@ -24,9 +24,9 @@ public class Paginator implements java.io.Serializable {
      */
     private int totalCount;
 
-    public Paginator(int page, int pageSize, int totalCount) {
+    public Paginator(int page, int limit, int totalCount) {
         super();
-        this.pageSize = pageSize;
+        this.limit = limit;
         this.totalCount = totalCount;
         this.page = computePageNo(page);
     }
@@ -38,8 +38,8 @@ public class Paginator implements java.io.Serializable {
         return page;
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public int getLimit() {
+        return limit;
     }
 
     /**
@@ -117,34 +117,25 @@ public class Paginator implements java.io.Serializable {
      * 开始行，可以用于oracle分页使用 (1-based)。
      */
     public int getStartRow() {
-        if (getPageSize() <= 0 || totalCount <= 0) return 0;
-        return page > 0 ? (page - 1) * getPageSize() + 1 : 0;
+        if (getLimit() <= 0 || totalCount <= 0) return 0;
+        return page > 0 ? (page - 1) * getLimit() + 1 : 0;
     }
 
     /**
      * 结束行，可以用于oracle分页使用 (1-based)。
      */
     public int getEndRow() {
-        return page > 0 ? Math.min(pageSize * page, getTotalCount()) : 0;
+        return page > 0 ? Math.min(limit * page, getTotalCount()) : 0;
     }
 
     /**
      * offset，计数从0开始，可以用于mysql分页使用(0-based)
      */
     public int getOffset() {
-        return page > 0 ? (page - 1) * getPageSize() : 0;
+        return page > 0 ? (page - 1) * getLimit() : 0;
     }
 
-    /**
-     * limit，可以用于mysql分页使用(0-based)
-     */
-    public int getLimit() {
-        if (page > 0) {
-            return Math.min(pageSize * page, getTotalCount()) - (pageSize * (page - 1));
-        } else {
-            return 0;
-        }
-    }
+
 
     /**
      * 得到 总页数
@@ -155,19 +146,19 @@ public class Paginator implements java.io.Serializable {
         if (totalCount <= 0) {
             return 0;
         }
-        if (pageSize <= 0) {
+        if (limit <= 0) {
             return 0;
         }
 
-        int count = totalCount / pageSize;
-        if (totalCount % pageSize > 0) {
+        int count = totalCount / limit;
+        if (totalCount % limit > 0) {
             count++;
         }
         return count;
     }
 
     protected int computePageNo(int page) {
-        return computePageNumber(page, pageSize, totalCount);
+        return computePageNumber(page, limit, totalCount);
     }
 
     /**
@@ -242,7 +233,7 @@ public class Paginator implements java.io.Serializable {
         final StringBuilder sb = new StringBuilder();
         sb.append("Paginator");
         sb.append("{page=").append(page);
-        sb.append(", pageSize=").append(pageSize);
+        sb.append(", limit=").append(limit);
         sb.append(", totalCount=").append(totalCount);
         sb.append('}');
         return sb.toString();

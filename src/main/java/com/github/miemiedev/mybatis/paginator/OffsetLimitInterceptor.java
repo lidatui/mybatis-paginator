@@ -2,6 +2,8 @@ package com.github.miemiedev.mybatis.paginator;
 
 
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
+import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
+import com.github.miemiedev.mybatis.paginator.support.SQLHelp;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -34,7 +36,6 @@ import java.util.Properties;
 		method = "query",
 		args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 public class OffsetLimitInterceptor implements Interceptor{
-    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	static int MAPPED_STATEMENT_INDEX = 0;
 	static int PARAMETER_INDEX = 1;
@@ -52,40 +53,29 @@ public class OffsetLimitInterceptor implements Interceptor{
 		return invocation.proceed();
 	}
 
-    Paginator processIntercept(final Object[] queryArgs) {
+    Paginator processIntercept(final Object[] queryArgs) throws SQLException {
 		//queryArgs = query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler)
 		MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
 		Object parameter = queryArgs[PARAMETER_INDEX];
 		final RowBounds rowBounds = (RowBounds)queryArgs[ROWBOUNDS_INDEX];
-		int offset = rowBounds.getOffset();
-		int limit = rowBounds.getLimit();
+
+        PageQuery pageQuery = new PageQuery(rowBounds);
+
+		int offset = pageQuery.getOffset();
+		int limit = pageQuery.getLimit();
+        int page = pageQuery.getPage();
 
         Paginator paginator = null;
-		if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
-			BoundSql boundSql = ms.getBoundSql(parameter);
-			String sql = boundSql.getSql().trim();
 
-            Connection connection = null;
-            try {
-                //query totalCount
-                connection = ms.getConfiguration().getEnvironment().getDataSource().getConnection();
-                int count = SQLHelp.getCount(sql, connection, ms, parameter, boundSql, dialect);
-                paginator = new Paginator((offset/limit)+1, limit, count);
-            } catch (SQLException e) {
-                logger.error("The total number of access to the database failure.", e);
-            } finally {
-                try {
-                    if (connection != null && !connection.isClosed()) {
-                        connection.close();
-                    }
-                } catch (SQLException e) {
-                    logger.error("Close the database connection error.", e);
-                }
-            }
+        BoundSql boundSql = ms.getBoundSql(parameter);
+        String sql = boundSql.getSql().trim();
 
-            if(rowBounds instanceof PageQuery){
-                PageQuery pageQuery = (PageQuery)rowBounds;
-                sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+        sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+
+        if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
+            if(pageQuery.isContainsTotalCount()){
+                int count = SQLHelp.getCount(sql, ms, parameter, boundSql, dialect);
+                paginator = new Paginator(page, limit, count);
             }
 
 			if (dialect.supportsLimitOffset()) {
@@ -95,14 +85,13 @@ public class OffsetLimitInterceptor implements Interceptor{
 				sql = dialect.getLimitString(sql, 0, limit);
 			}
 			limit = RowBounds.NO_ROW_LIMIT;
-			
+
 			queryArgs[ROWBOUNDS_INDEX] = new RowBounds(offset,limit);
-			
-			BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
-			
-			MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
-			queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
 		}
+
+        BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
+        MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
+        queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
 
         return paginator;
 	}
@@ -128,7 +117,12 @@ public class OffsetLimitInterceptor implements Interceptor{
 		builder.statementType(ms.getStatementType());
 		builder.keyGenerator(ms.getKeyGenerator());
 		if(ms.getKeyProperties() != null && ms.getKeyProperties().length !=0){
-			builder.keyProperty(ms.getKeyProperties()[0]);
+            StringBuffer keyProperties = new StringBuffer();
+            for(String keyProperty : ms.getKeyProperties()){
+                keyProperties.append(keyProperty).append(",");
+            }
+            keyProperties.delete(keyProperties.length()-1, keyProperties.length());
+			builder.keyProperty(keyProperties.toString());
 		}
 		
 		//setStatementTimeout()
@@ -172,5 +166,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 		}
 	}
 
-	
+    public void setDialect(Dialect dialect) {
+        this.dialect = dialect;
+    }
 }
