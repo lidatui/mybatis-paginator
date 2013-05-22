@@ -25,7 +25,7 @@ public class PaginatorTester extends SimulateBaseDao{
                 .addSortInfo("name.desc", "nlssort(? ,'NLS_SORT=SCHINESE_PINYIN_M')")
                 .addSortInfo("score.desc", "? ? nulls last");
         //sort statement result:
-        //      order by age asc, gender desc, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M'), score desc nulls last
+        //      order by age asc, gender desc, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M') desc, score desc nulls last
 
         List list = findByCity("BeiJing",pageQuery);
 
