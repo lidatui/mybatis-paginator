@@ -23,7 +23,7 @@ import java.util.Properties;
 
 
 /**
- * 为ibatis3提供基于方言(Dialect)的分页查询的插件
+ * 为MyBatis提供基于方言(Dialect)的分页查询的插件
  * 
  * 将拦截Executor.query()方法实现分页方言的插入.
  * @author badqiu
@@ -81,8 +81,12 @@ public class OffsetLimitInterceptor implements Interceptor{
                 paginator = new Paginator(page, limit, count);
             }
 
-            sql = dialect.getLimitString(sql, offset, limit);
-            offset = RowBounds.NO_ROW_OFFSET;
+			if (dialect.supportsLimitOffset()) {
+				sql = dialect.getLimitString(sql, offset, limit);
+				offset = RowBounds.NO_ROW_OFFSET;
+			} else {
+				sql = dialect.getLimitString(sql, 0, limit);
+			}
 			limit = RowBounds.NO_ROW_LIMIT;
 			queryArgs[ROWBOUNDS_INDEX] = new RowBounds(offset,limit);
 		}
