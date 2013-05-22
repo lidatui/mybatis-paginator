@@ -96,6 +96,9 @@ public class SortInfo implements Serializable{
         }
 
         String[] array = sortSegment.trim().split("\\.");
+        if(array.length != 2){
+            throw new IllegalArgumentException("SortInfo pattern must be {columnName}.{sortStatus}, input is: "+sortSegment);
+        }
         if(isSQLInjection(array[0]) || isSQLInjection(array[1])){
             logger.warn("SQLInjection ? -> {} .", sortSegment);
             return null;
