@@ -51,6 +51,7 @@ public class SQLHelp {
 							   final BoundSql boundSql, Dialect dialect) throws SQLException {
 		final String count_sql = dialect.getCountString(sql);
         logger.debug("Total count SQL [{}] ", count_sql);
+        logger.debug("Total count Parameters: {} ", parameterObject);
 
         Connection connection = null;
 		PreparedStatement countStmt = null;
