@@ -112,7 +112,7 @@ public class SortInfo implements Serializable{
 	
 	public String toString() {
         if(sortExpression != null && sortExpression.indexOf("?") != -1){
-            return String.format(sortExpression.replaceAll("\\?","%s"), columnName) + (sortStatus == null ? "" : " " + sortStatus);
+            return String.format(sortExpression.replaceAll("\\?","%s"), columnName ,sortStatus == null ? "" : " " + sortStatus);
         }
 		return columnName + (sortStatus == null ? "" : " " + sortStatus);
 	}

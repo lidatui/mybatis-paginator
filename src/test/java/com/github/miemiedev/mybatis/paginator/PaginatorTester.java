@@ -20,10 +20,12 @@ public class PaginatorTester extends SimulateBaseDao{
         int page = 1;
         int pageSize = 20;
         String sortString = "age.asc,gender.desc";
-        String contentSortString = "name.desc";
         PageQuery pageQuery = new PageQuery(page, pageSize , sortString)
                 //Oracle sorting of chinese pinyin
-                .addSortInfo(contentSortString, "nlssort( ? ,'NLS_SORT=SCHINESE_PINYIN_M')");
+                .addSortInfo("name.desc", "nlssort(? ,'NLS_SORT=SCHINESE_PINYIN_M')")
+                .addSortInfo("score.desc", "? ? nulls last");
+        //sort statement result:
+        //      order by age asc, gender desc, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M'), score desc nulls last
 
         List list = findByCity("BeiJing",pageQuery);
 
