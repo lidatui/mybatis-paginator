@@ -23,7 +23,7 @@ public class PaginatorTester extends SimulateBaseDao{
         PageQuery pageQuery = new PageQuery(page, pageSize , sortString)
                 //Oracle sorting of chinese pinyin
                 .addSortInfo("name.desc", "nlssort(? ,'NLS_SORT=SCHINESE_PINYIN_M')")
-                .addSortInfo("score.", "? ? nulls last");
+                .addSortInfo("score.desc", "? ? nulls last");
         //sort statement result:
         //      order by age asc, gender desc, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M'), score desc nulls last
 
