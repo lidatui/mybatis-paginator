@@ -59,24 +59,14 @@ public class PageBounds extends RowBounds implements Serializable {
         this(NO_PAGE, NO_ROW_LIMIT,order);
     }
 
-    public PageBounds(int page, int limit, List<Order> orders) {
-        this(page, limit, orders, true);
-    }
-
     public PageBounds(int page, int limit, Order... order) {
-        this(page, limit, Arrays.asList(order), true);
+        this(page, limit, Arrays.asList(order));
     }
 
-    public PageBounds(int page, int limit, Order order, boolean containsTotalCount){
-        this(page, limit,order);
-        this.containsTotalCount = containsTotalCount;
-    }
-
-    public PageBounds(int page, int limit, List<Order> orders, boolean containsTotalCount) {
+    public PageBounds(int page, int limit, List<Order> orders) {
         this.page = page;
         this.limit = limit;
         this.orders = orders;
-        this.containsTotalCount = containsTotalCount;
     }
 
 
