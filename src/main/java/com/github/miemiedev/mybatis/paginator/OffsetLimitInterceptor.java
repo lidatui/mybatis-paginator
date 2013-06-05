@@ -167,15 +167,15 @@ public class OffsetLimitInterceptor implements Interceptor{
 	}
 
 	public void setProperties(Properties properties) {
-		String dialectClass = new PropertiesHelper(properties).getRequiredString("dialectClass");
+        PropertiesHelper propertiesHelper = new PropertiesHelper(properties);
+		String dialectClass = propertiesHelper.getRequiredString("dialectClass");
 		try {
-			dialect = (Dialect)Class.forName(dialectClass).newInstance();
+            setDialect((Dialect)Class.forName(dialectClass).newInstance());
 		} catch (Exception e) {
 			throw new RuntimeException("cannot create dialect instance by dialectClass:"+dialectClass,e);
 		}
 
-        asyncTotalCount = new PropertiesHelper(properties).getBoolean("asyncTotalCount",false);
-        logger.debug("asyncTotalCount: {} ", asyncTotalCount);
+        setAsyncTotalCount(propertiesHelper.getBoolean("asyncTotalCount",false));
 	}
 	
 	public static class BoundSqlSqlSource implements SqlSource {
@@ -189,6 +189,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 	}
 
     public void setDialect(Dialect dialect) {
+        logger.debug("dialectClass: {} ", dialect.getClass().getName());
         this.dialect = dialect;
     }
 
