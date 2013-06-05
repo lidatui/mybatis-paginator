@@ -67,7 +67,10 @@ public class OffsetLimitInterceptor implements Interceptor{
             bufferSql.deleteCharAt(bufferSql.length()-1);
         }
         String sql = bufferSql.toString();
-        sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+
+        if(!pageQuery.getSortInfoList().isEmpty()){
+            sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+        }
 
         Callable<Paginator> countTask = null;
 
