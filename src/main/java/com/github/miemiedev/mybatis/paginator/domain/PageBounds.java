@@ -4,6 +4,7 @@ import org.apache.ibatis.session.RowBounds;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,43 +47,26 @@ public class PageBounds extends RowBounds implements Serializable {
         this.limit = limit;
     }
 
-    public PageBounds(int limit, boolean containsTotalCount) {
-        this.limit = limit;
-        this.containsTotalCount = containsTotalCount;
-    }
 
     public PageBounds(int page, int limit) {
         this(page, limit, new ArrayList<Order>());
-    }
-
-    public PageBounds(int page, int limit, boolean containsTotalCount) {
-        this(page, limit, new ArrayList<Order>(), containsTotalCount);
-    }
-
-    public PageBounds(Order order) {
-        this(NO_PAGE, NO_ROW_LIMIT,order);
     }
 
     public PageBounds(List<Order> orders) {
         this(NO_PAGE, NO_ROW_LIMIT,orders);
     }
 
-    public PageBounds(int page, int limit, Order order) {
-        this(page, limit, order, true);
-    }
 
-    public PageBounds(int page, int limit, Order order, boolean containsTotalCount) {
-        this.page = page;
-        this.limit = limit;
-        if(order != null){
-            this.orders = new ArrayList();
-            this.orders.add(order);
-        }
-        this.containsTotalCount = containsTotalCount;
+    public PageBounds(Order... order) {
+        this(NO_PAGE, NO_ROW_LIMIT,order);
     }
 
     public PageBounds(int page, int limit, List<Order> orders) {
         this(page, limit, orders, true);
+    }
+
+    public PageBounds(int page, int limit, Order... order) {
+        this(page, limit, Arrays.asList(order), true);
     }
 
     public PageBounds(int page, int limit, List<Order> orders, boolean containsTotalCount) {
