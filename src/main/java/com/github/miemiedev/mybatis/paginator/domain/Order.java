@@ -66,7 +66,7 @@ public class Order implements Serializable {
     }
 
     /**
-     * @param orderSegment  ex: "id.asc" or "code.desc"
+     * @param orderSegment  ex: "id.asc,code.desc" or "code.desc"
      */
     public static List<Order> formString(String orderSegment,String orderExpr){
         if(orderSegment == null || orderSegment.trim().equals("")) {
