@@ -47,7 +47,6 @@ public class PageBounds extends RowBounds implements Serializable {
         this.limit = limit;
     }
 
-
     public PageBounds(int page, int limit) {
         this(page, limit, new ArrayList<Order>());
     }
@@ -55,7 +54,6 @@ public class PageBounds extends RowBounds implements Serializable {
     public PageBounds(List<Order> orders) {
         this(NO_PAGE, NO_ROW_LIMIT,orders);
     }
-
 
     public PageBounds(Order... order) {
         this(NO_PAGE, NO_ROW_LIMIT,order);
