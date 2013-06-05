@@ -67,7 +67,7 @@ public class OffsetLimitInterceptor implements Interceptor{
         }
         String sql = bufferSql.toString();
 
-        if(!pageBounds.getOrders().isEmpty()){
+        if(pageBounds.getOrders() != null && !pageBounds.getOrders().isEmpty()){
             sql = dialect.getSortString(sql, pageBounds.getOrders());
         }
 
