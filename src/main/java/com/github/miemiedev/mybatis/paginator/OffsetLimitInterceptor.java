@@ -4,6 +4,7 @@ package com.github.miemiedev.mybatis.paginator;
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
 import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
 import com.github.miemiedev.mybatis.paginator.support.SQLHelp;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -18,8 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.*;
 
 
 /**
@@ -36,67 +39,81 @@ import java.util.Properties;
 		method = "query",
 		args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})})
 public class OffsetLimitInterceptor implements Interceptor{
-
+    private static Logger logger = LoggerFactory.getLogger(OffsetLimitInterceptor.class);
 	static int MAPPED_STATEMENT_INDEX = 0;
 	static int PARAMETER_INDEX = 1;
 	static int ROWBOUNDS_INDEX = 2;
 	static int RESULT_HANDLER_INDEX = 3;
+
+    ExecutorService executorService = Executors.newCachedThreadPool();
+
+    Dialect dialect;
+    boolean asyncTotalCount = false;
 	
-	Dialect dialect;
-	
-	public Object intercept(Invocation invocation) throws Throwable {
-        Paginator paginator = processIntercept(invocation.getArgs());
-        if(paginator != null){
-            List list = (List) invocation.proceed();
-            return new PageList(list,paginator);
-        }
-		return invocation.proceed();
-	}
+	public Object intercept(final Invocation invocation) throws Throwable {
+        final Object[] queryArgs = invocation.getArgs();
+        final MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
+        final Object parameter = queryArgs[PARAMETER_INDEX];
+        final RowBounds rowBounds = (RowBounds)queryArgs[ROWBOUNDS_INDEX];
+        final PageQuery pageQuery = new PageQuery(rowBounds);
 
-    Paginator processIntercept(final Object[] queryArgs) throws SQLException {
-		MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
-		Object parameter = queryArgs[PARAMETER_INDEX];
-		final RowBounds rowBounds = (RowBounds)queryArgs[ROWBOUNDS_INDEX];
+        final int offset = pageQuery.getOffset();
+        final int limit = pageQuery.getLimit();
+        final int page = pageQuery.getPage();
 
-        PageQuery pageQuery = new PageQuery(rowBounds);
-
-		int offset = pageQuery.getOffset();
-		int limit = pageQuery.getLimit();
-        int page = pageQuery.getPage();
-
-        Paginator paginator = null;
-
-        BoundSql boundSql = ms.getBoundSql(parameter);
-        StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
+        final BoundSql boundSql = ms.getBoundSql(parameter);
+        final StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
         if(bufferSql.lastIndexOf(";") == bufferSql.length()-1){
             bufferSql.deleteCharAt(bufferSql.length()-1);
         }
         String sql = bufferSql.toString();
-
         sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+
+        Callable<Paginator> countTask = null;
 
         if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
             if(pageQuery.isContainsTotalCount()){
-                int count = SQLHelp.getCount(bufferSql.toString(), ms, parameter, boundSql, dialect);
-                paginator = new Paginator(page, limit, count);
+                countTask = new Callable() {
+                    public Object call() throws Exception {
+                        int count = SQLHelp.getCount(bufferSql.toString(), ms, parameter, boundSql, dialect);
+                        return new Paginator(page, limit, count);
+                    }
+                };
             }
 
-			if (dialect.supportsLimitOffset()) {
-				sql = dialect.getLimitString(sql, offset, limit);
-				offset = RowBounds.NO_ROW_OFFSET;
-			} else {
-				sql = dialect.getLimitString(sql, 0, limit);
-			}
-			limit = RowBounds.NO_ROW_LIMIT;
-			queryArgs[ROWBOUNDS_INDEX] = new RowBounds(offset,limit);
-		}
+            if (dialect.supportsLimitOffset()) {
+                sql = dialect.getLimitString(sql, offset, limit);
+            } else {
+                sql = dialect.getLimitString(sql, 0, limit);
+            }
+            queryArgs[ROWBOUNDS_INDEX] = new RowBounds(RowBounds.NO_ROW_OFFSET,RowBounds.NO_ROW_LIMIT);
+        }
 
         BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
         MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
         queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
 
-        return paginator;
+
+        Future<Paginator> countFutrue= null;
+        if(countTask!=null){
+            if(asyncTotalCount){
+                countFutrue = executorService.submit(countTask);
+            }else{
+                countFutrue = new FutureTask(countTask);
+                ((FutureTask)countFutrue).run();
+            }
+        }
+
+        List list = (List)invocation.proceed();
+
+        if(countFutrue!=null){
+            Paginator paginator = countFutrue.get();
+            return new PageList(list,paginator);
+        }
+        return list;
 	}
+
+
 
 	private BoundSql copyFromBoundSql(MappedStatement ms, BoundSql boundSql,
 			String sql) {
@@ -155,7 +172,10 @@ public class OffsetLimitInterceptor implements Interceptor{
 			dialect = (Dialect)Class.forName(dialectClass).newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException("cannot create dialect instance by dialectClass:"+dialectClass,e);
-		} 
+		}
+
+        asyncTotalCount = new PropertiesHelper(properties).getBoolean("asyncTotalCount",false);
+        logger.debug("asyncTotalCount: {} ", asyncTotalCount);
 	}
 	
 	public static class BoundSqlSqlSource implements SqlSource {
@@ -170,5 +190,10 @@ public class OffsetLimitInterceptor implements Interceptor{
 
     public void setDialect(Dialect dialect) {
         this.dialect = dialect;
+    }
+
+    public void setAsyncTotalCount(boolean asyncTotalCount) {
+        logger.debug("asyncTotalCount: {} ", asyncTotalCount);
+        this.asyncTotalCount = asyncTotalCount;
     }
 }

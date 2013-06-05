@@ -35,7 +35,7 @@ public class PaginatorTester extends SimulateBaseDao{
 
         //convert to json , for spring mvc
         ObjectMapper objectMapper = new PageListJsonMapper();
-        objectMapper.writeValue(System.out, list);
+        System.out.println(objectMapper.writeValueAsString(list));
     }
 
     public List findByCity(String city, PageQuery pageQuery){
