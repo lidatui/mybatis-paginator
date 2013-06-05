@@ -3,7 +3,7 @@ package com.github.miemiedev.mybatis.paginator.jackson2;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.github.miemiedev.mybatis.paginator.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
 
 /**
  * @author miemiedev

@@ -1,6 +1,6 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
 
-import com.github.miemiedev.mybatis.paginator.SortInfo;
+import com.github.miemiedev.mybatis.paginator.domain.Order;
 
 import java.util.List;
 
@@ -54,14 +54,14 @@ public class Dialect {
      * @param sql SQL语句
      * @return 总记录数的sql
      */
-    public String getSortString(String sql, List<SortInfo> sortInfos){
-        if(sortInfos == null || sortInfos.isEmpty()){
+    public String getSortString(String sql, List<Order> orders){
+        if(orders == null || orders.isEmpty()){
             return sql;
         }
 
         StringBuffer buffer = new StringBuffer("select * from (").append(sql).append(") temp_order order by ");
-        for(SortInfo sortInfo : sortInfos){
-             buffer.append(sortInfo.toString())
+        for(Order order : orders){
+             buffer.append(order.toString())
                      .append(", ");
         }
         buffer.delete(buffer.length()-2, buffer.length());

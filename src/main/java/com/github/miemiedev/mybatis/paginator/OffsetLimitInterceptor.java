@@ -2,9 +2,11 @@ package com.github.miemiedev.mybatis.paginator;
 
 
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
 import com.github.miemiedev.mybatis.paginator.support.SQLHelp;
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -17,9 +19,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.*;
@@ -55,11 +54,11 @@ public class OffsetLimitInterceptor implements Interceptor{
         final MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
         final Object parameter = queryArgs[PARAMETER_INDEX];
         final RowBounds rowBounds = (RowBounds)queryArgs[ROWBOUNDS_INDEX];
-        final PageQuery pageQuery = new PageQuery(rowBounds);
+        final PageBounds pageBounds = new PageBounds(rowBounds);
 
-        final int offset = pageQuery.getOffset();
-        final int limit = pageQuery.getLimit();
-        final int page = pageQuery.getPage();
+        final int offset = pageBounds.getOffset();
+        final int limit = pageBounds.getLimit();
+        final int page = pageBounds.getPage();
 
         final BoundSql boundSql = ms.getBoundSql(parameter);
         final StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
@@ -68,14 +67,14 @@ public class OffsetLimitInterceptor implements Interceptor{
         }
         String sql = bufferSql.toString();
 
-        if(!pageQuery.getSortInfoList().isEmpty()){
-            sql = dialect.getSortString(sql, pageQuery.getSortInfoList());
+        if(!pageBounds.getOrders().isEmpty()){
+            sql = dialect.getSortString(sql, pageBounds.getOrders());
         }
 
         Callable<Paginator> countTask = null;
 
         if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
-            if(pageQuery.isContainsTotalCount()){
+            if(pageBounds.isContainsTotalCount()){
                 countTask = new Callable() {
                     public Object call() throws Exception {
                         int count = SQLHelp.getCount(bufferSql.toString(), ms, parameter, boundSql, dialect);
