@@ -6,7 +6,7 @@ import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
-import com.github.miemiedev.mybatis.paginator.support.SQLHelp;
+import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -19,7 +19,10 @@ import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
@@ -50,6 +53,7 @@ public class OffsetLimitInterceptor implements Interceptor{
     boolean asyncTotalCount = false;
 	
 	public Object intercept(final Invocation invocation) throws Throwable {
+        final Executor executor = (Executor) invocation.getTarget();
         final Object[] queryArgs = invocation.getArgs();
         final MappedStatement ms = (MappedStatement)queryArgs[MAPPED_STATEMENT_INDEX];
         final Object parameter = queryArgs[PARAMETER_INDEX];
@@ -77,7 +81,8 @@ public class OffsetLimitInterceptor implements Interceptor{
             if(pageBounds.isContainsTotalCount()){
                 countTask = new Callable() {
                     public Object call() throws Exception {
-                        int count = SQLHelp.getCount(bufferSql.toString(), ms, parameter, boundSql, dialect);
+                        String countSql = dialect.getCountString(bufferSql.toString());
+                        int count = queryCount(executor, copyFromNewSql(ms, boundSql, countSql), parameter);
                         return new Paginator(page, limit, count);
                     }
                 };
@@ -91,9 +96,7 @@ public class OffsetLimitInterceptor implements Interceptor{
             queryArgs[ROWBOUNDS_INDEX] = new RowBounds(RowBounds.NO_ROW_OFFSET,RowBounds.NO_ROW_LIMIT);
         }
 
-        BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
-        MappedStatement newMs = copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
-        queryArgs[MAPPED_STATEMENT_INDEX] = newMs;
+        queryArgs[MAPPED_STATEMENT_INDEX] = copyFromNewSql(ms,boundSql,sql);
 
 
         Future<Paginator> countFutrue= null;
@@ -106,16 +109,48 @@ public class OffsetLimitInterceptor implements Interceptor{
             }
         }
 
-        List list = (List)invocation.proceed();
+        Future<List> listFutrue = executorService.submit(new Callable<List>() {
+            public List call() throws Exception {
+                return (List)invocation.proceed();
+            }
+        });
 
         if(countFutrue!=null){
-            Paginator paginator = countFutrue.get();
-            return new PageList(list,paginator);
+            return new PageList(listFutrue.get(),countFutrue.get());
         }
-        return list;
+        return listFutrue.get();
 	}
 
+    private int queryCount(Executor executor,MappedStatement ms,Object parameter) throws SQLException {
+        Map<String,Object> one = selectOne(executor,ms,parameter);
+        if(one != null && !one.isEmpty()){
+            BigDecimal count = (BigDecimal)one.values().toArray()[0];
+            return count.intValue();
+        }
+        return 0;
+    }
 
+    private <T> T selectOne(Executor executor,MappedStatement ms,Object parameter) throws SQLException {
+        List<T> list = selectList(executor, ms, parameter, RowBounds.DEFAULT);
+        if (list.size() == 1) {
+            return list.get(0);
+        } else if (list.size() > 1) {
+            throw new TooManyResultsException("Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+        } else {
+            return null;
+        }
+    }
+
+
+    private <E> List<E>  selectList(Executor executor,MappedStatement ms,Object parameter, RowBounds rowBounds) throws SQLException {
+        return executor.query(ms, parameter, rowBounds, Executor.NO_RESULT_HANDLER);
+    }
+
+    private MappedStatement copyFromNewSql(MappedStatement ms, BoundSql boundSql,
+                                           String sql){
+        BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
+        return copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
+    }
 
 	private BoundSql copyFromBoundSql(MappedStatement ms, BoundSql boundSql,
 			String sql) {
@@ -164,6 +199,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 		return builder.build();
 	}
 
+
 	public Object plugin(Object target) {
 		return Plugin.wrap(target, this);
 	}
@@ -172,7 +208,7 @@ public class OffsetLimitInterceptor implements Interceptor{
         PropertiesHelper propertiesHelper = new PropertiesHelper(properties);
 		String dialectClass = propertiesHelper.getRequiredString("dialectClass");
 		try {
-            setDialect((Dialect)Class.forName(dialectClass).newInstance());
+            setDialect((Dialect) Class.forName(dialectClass).newInstance());
 		} catch (Exception e) {
 			throw new RuntimeException("cannot create dialect instance by dialectClass:"+dialectClass,e);
 		}

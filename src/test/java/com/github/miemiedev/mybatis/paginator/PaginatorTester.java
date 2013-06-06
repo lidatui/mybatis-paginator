@@ -29,7 +29,7 @@ public class PaginatorTester extends SimulateBaseDao{
         //Oracle sorting of nulls last
         pageBounds.getOrders().add(Order.create("score", "desc", "? ? nulls last"));
         //Order statement result:
-        //  order by age asc, gender desc, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M') desc, score desc nulls last
+        //  order by age ASC, gender DESC, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M') DESC, score DESC nulls last
 
 
         List list = findByCity("BeiJing",pageBounds);

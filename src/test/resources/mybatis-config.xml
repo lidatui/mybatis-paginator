@@ -9,18 +9,19 @@
     <plugins>
         <plugin interceptor="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor">
             <property name="dialectClass" value="com.github.miemiedev.mybatis.paginator.dialect.OracleDialect"/>
-            <property name="asyncTotalCount" value="true"/>
+            <property name="asyncTotalCount" value="false"/>  <!-- optional -->
         </plugin>
     </plugins>
 
     <environments default="development">
         <environment id="development">
             <transactionManager type="JDBC"/>
-            <dataSource type="POOLED">
+            <dataSource type="POOLED" >
                 <property name="driver" value="oracle.jdbc.OracleDriver"/>
                 <property name="url" value="jdbc:oracle:thin:@10.29.20.209:1521:orcl"/>
                 <property name="username" value="financial_product"/>
                 <property name="password" value="fpadmin"/>
+                <property name="poolMaximumActiveConnections" value="50"/>
             </dataSource>
         </environment>
     </environments>

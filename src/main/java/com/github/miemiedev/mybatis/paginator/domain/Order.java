@@ -77,7 +77,7 @@ public class Order implements Serializable {
         String[] orderSegments = orderSegment.trim().split(",");
         for(int i = 0; i < orderSegments.length; i++) {
             String sortSegment = orderSegments[i];
-            Order order = _formString(sortSegment, null);
+            Order order = _formString(sortSegment, orderExpr);
             if(order != null){
                 results.add(order);
             }
@@ -94,7 +94,7 @@ public class Order implements Serializable {
         }
 
         String[] array = orderSegment.trim().split("\\.");
-        if(array.length != 2){
+        if(array.length != 1 && array.length != 2){
             throw new IllegalArgumentException("orderSegment pattern must be {property}.{direction}, input is: "+orderSegment);
         }
 
