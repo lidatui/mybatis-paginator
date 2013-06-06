@@ -19,7 +19,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +46,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 	static int ROWBOUNDS_INDEX = 2;
 	static int RESULT_HANDLER_INDEX = 3;
 
-    ExecutorService executorService = Executors.newCachedThreadPool();
-
+    static final ExecutorService ExecutorService = Executors.newCachedThreadPool();
     Dialect dialect;
     boolean asyncTotalCount = false;
 	
@@ -101,15 +99,19 @@ public class OffsetLimitInterceptor implements Interceptor{
 
         Future<Paginator> countFutrue= null;
         if(countTask!=null){
-            if(asyncTotalCount){
-                countFutrue = executorService.submit(countTask);
+            Boolean async = pageBounds.getAsyncTotalCount();
+            if(async == null){
+                async = asyncTotalCount;
+            }
+            if(async){
+                countFutrue = ExecutorService.submit(countTask);
             }else{
                 countFutrue = new FutureTask(countTask);
                 ((FutureTask)countFutrue).run();
             }
         }
 
-        Future<List> listFutrue = executorService.submit(new Callable<List>() {
+        Future<List> listFutrue = ExecutorService.submit(new Callable<List>() {
             public List call() throws Exception {
                 return (List)invocation.proceed();
             }

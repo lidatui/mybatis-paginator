@@ -25,9 +25,9 @@ public class PageBounds extends RowBounds implements Serializable {
     /** 结果集是否包含TotalCount */
     protected boolean containsTotalCount = true;
 
-    public PageBounds(){
+    protected Boolean asyncTotalCount;
 
-    }
+    public PageBounds(){}
 
     public PageBounds(RowBounds rowBounds) {
         if(rowBounds instanceof PageBounds){
@@ -36,6 +36,7 @@ public class PageBounds extends RowBounds implements Serializable {
             this.limit = pageBounds.limit;
             this.orders = pageBounds.orders;
             this.containsTotalCount = pageBounds.containsTotalCount;
+            this.asyncTotalCount = pageBounds.asyncTotalCount;
         }else{
             this.page = (rowBounds.getOffset()/rowBounds.getLimit())+1;
             this.limit = rowBounds.getLimit();
@@ -45,6 +46,11 @@ public class PageBounds extends RowBounds implements Serializable {
 
     public PageBounds(int limit) {
         this.limit = limit;
+    }
+
+    public PageBounds(int limit, boolean containsTotalCount) {
+        this.limit = limit;
+        this.containsTotalCount = containsTotalCount;
     }
 
     public PageBounds(int page, int limit) {
@@ -102,6 +108,14 @@ public class PageBounds extends RowBounds implements Serializable {
         this.orders = orders;
     }
 
+    public Boolean getAsyncTotalCount() {
+        return asyncTotalCount;
+    }
+
+    public void setAsyncTotalCount(Boolean asyncTotalCount) {
+        this.asyncTotalCount = asyncTotalCount;
+    }
+
     @Override
     public int getOffset() {
         if(page >= 1){
@@ -117,11 +131,8 @@ public class PageBounds extends RowBounds implements Serializable {
         sb.append(", limit=").append(limit);
         sb.append(", orders=").append(orders);
         sb.append(", containsTotalCount=").append(containsTotalCount);
+        sb.append(", asyncTotalCount=").append(asyncTotalCount);
         sb.append('}');
         return sb.toString();
     }
-
-
-
-
 }

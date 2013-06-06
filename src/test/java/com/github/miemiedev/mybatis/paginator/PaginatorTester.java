@@ -5,6 +5,7 @@ import com.github.miemiedev.mybatis.paginator.domain.Order;
 import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.jackson2.PageListJsonMapper;
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -44,11 +45,17 @@ public class PaginatorTester extends SimulateBaseDao{
     }
 
     public List findByCity(String city, PageBounds pageBounds){
+        SqlSession session = null;
+        try{
+            session = getSqlSession();
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("city",city);
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("city",city);
+            return session.selectList("db.table.user.findByCity", params, pageBounds);
+        }finally {
+            session.close();
+        }
 
-        return getSqlSession().selectList("db.table.user.findByCity", params, pageBounds);
     }
 
 }

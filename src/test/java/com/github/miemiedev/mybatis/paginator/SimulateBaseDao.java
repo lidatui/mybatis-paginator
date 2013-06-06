@@ -15,22 +15,22 @@ import java.io.InputStream;
  */
 public class SimulateBaseDao {
 
-    private SqlSession session;
+    private SqlSessionFactory sqlSessionFactory;
 
     @Before
     public void init() throws IOException {
         String resource = "mybatis-config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-        session = sqlSessionFactory.openSession();
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
     }
 
     @After
     public void close(){
-        session.close();
+
     }
 
     public SqlSession getSqlSession(){
-        return session;
+        return sqlSessionFactory.openSession();
     }
 }
