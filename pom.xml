@@ -12,7 +12,7 @@
 
     <groupId>com.github.miemiedev</groupId>
     <artifactId>mybatis-paginator</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
     <name>mybatis-paginator</name>
     <description>A Mybatis plugin, implementation of database paging and sorting</description>

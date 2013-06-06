@@ -124,7 +124,7 @@ public class OffsetLimitInterceptor implements Interceptor{
     private int queryCount(Executor executor,MappedStatement ms,Object parameter) throws SQLException {
         Map<String,Object> one = selectOne(executor,ms,parameter);
         if(one != null && !one.isEmpty()){
-            BigDecimal count = (BigDecimal)one.values().toArray()[0];
+            Number count = (Number)one.values().toArray()[0];
             return count.intValue();
         }
         return 0;
