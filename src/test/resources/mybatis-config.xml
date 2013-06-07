@@ -9,7 +9,6 @@
     <plugins>
         <plugin interceptor="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor">
             <property name="dialectClass" value="com.github.miemiedev.mybatis.paginator.dialect.OracleDialect"/>
-            <property name="asyncTotalCount" value="false"/>  <!-- optional, default false -->
         </plugin>
     </plugins>
 
@@ -25,8 +24,6 @@
             </dataSource>
         </environment>
     </environments>
-
-
 
     <mappers>
         <mapper resource="User.mbts.xml"/>
