@@ -14,10 +14,11 @@ Downloading from the Maven central repository
     <dependency>
         <groupId>com.github.miemiedev</groupId>
         <artifactId>mybatis-paginator</artifactId>
-        <version>1.2.1</version>
+        <version>1.2.2</version>
     </dependency>
  ...
 </dependencies>
 ```
+
 
 Thanks for [rapid-framework](https://code.google.com/p/rapid-framework) and [plum](https://github.com/yfyang/plum) author.
