@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
  * @author miemiedev
  */
 public class Order implements Serializable {
-    private static Logger logger = LoggerFactory.getLogger(Order.class);
     private Direction direction;
     private String property;
     private String orderExpr;
@@ -37,6 +36,17 @@ public class Order implements Serializable {
         return orderExpr;
     }
 
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
+    public void setOrderExpr(String orderExpr) {
+        this.orderExpr = orderExpr;
+    }
 
     private static String INJECTION_REGEX = "[A-Za-z0-9\\_\\-\\+\\.]+";
     public static boolean isSQLInjection(String str){
@@ -46,8 +56,7 @@ public class Order implements Serializable {
     @Override
     public String toString() {
         if(isSQLInjection(property)){
-            logger.warn("SQLInjection? property -> {}", property);
-            return "";
+            throw new IllegalArgumentException("SQLInjection property: "+property);
         }
         if(orderExpr != null && orderExpr.indexOf("?") != -1){
             String[] exprs = orderExpr.split("\\?");
