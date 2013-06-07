@@ -6,7 +6,7 @@ import javax.servlet.ServletContextListener;
 /**
  *
  */
-public class CleanUpMybatisPaginatorListener implements ServletContextListener {
+public class CleanupMybatisPaginatorListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent servletContextEvent) {
 
     }
