@@ -46,7 +46,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 	static int ROWBOUNDS_INDEX = 2;
 	static int RESULT_HANDLER_INDEX = 3;
 
-    static final ExecutorService ExecutorService = Executors.newCachedThreadPool();
+    static ExecutorService Pool;
     Dialect dialect;
     boolean asyncTotalCount = false;
 	
@@ -114,7 +114,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 
     private <T> Future<T> call(Callable callable, boolean async){
         if(async){
-             return ExecutorService.submit(callable);
+             return Pool.submit(callable);
         }else{
             FutureTask<T> future = new FutureTask(callable);
             future.run();
@@ -215,6 +215,9 @@ public class OffsetLimitInterceptor implements Interceptor{
 		}
 
         setAsyncTotalCount(propertiesHelper.getBoolean("asyncTotalCount",false));
+
+        setPoolMaxSize(propertiesHelper.getInt("poolMaxSize",0));
+
 	}
 	
 	public static class BoundSqlSqlSource implements SqlSource {
@@ -235,5 +238,17 @@ public class OffsetLimitInterceptor implements Interceptor{
     public void setAsyncTotalCount(boolean asyncTotalCount) {
         logger.debug("asyncTotalCount: {} ", asyncTotalCount);
         this.asyncTotalCount = asyncTotalCount;
+    }
+
+    public void setPoolMaxSize(int poolMaxSize) {
+
+        if(poolMaxSize > 0){
+            logger.debug("poolMaxSize: {} ", poolMaxSize);
+            Pool = Executors.newFixedThreadPool(poolMaxSize);
+        }else{
+            Pool = Executors.newCachedThreadPool();
+        }
+
+
     }
 }
