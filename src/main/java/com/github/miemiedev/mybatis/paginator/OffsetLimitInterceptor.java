@@ -97,31 +97,30 @@ public class OffsetLimitInterceptor implements Interceptor{
         queryArgs[MAPPED_STATEMENT_INDEX] = copyFromNewSql(ms,boundSql,sql);
 
 
-        Future<Paginator> countFutrue= null;
-        if(countTask!=null){
-            Boolean async = pageBounds.getAsyncTotalCount();
-            if(async == null){
-                async = asyncTotalCount;
-            }
-            if(async){
-                countFutrue = ExecutorService.submit(countTask);
-            }else{
-                countFutrue = new FutureTask(countTask);
-                ((FutureTask)countFutrue).run();
-            }
-        }
-
-        Future<List> listFutrue = ExecutorService.submit(new Callable<List>() {
+        Boolean async = pageBounds.getAsyncTotalCount() == null ? asyncTotalCount : pageBounds.getAsyncTotalCount();
+        Future<List> listFuture = call(new Callable<List>() {
             public List call() throws Exception {
                 return (List)invocation.proceed();
             }
-        });
+        }, async);
 
-        if(countFutrue!=null){
-            return new PageList(listFutrue.get(),countFutrue.get());
+        if(countTask!=null){
+            Future<Paginator> countFutrue = call(countTask, async);
+            return new PageList(listFuture.get(),countFutrue.get());
         }
-        return listFutrue.get();
+
+        return listFuture.get();
 	}
+
+    private <T> Future<T> call(Callable callable, boolean async){
+        if(async){
+             return ExecutorService.submit(callable);
+        }else{
+            FutureTask<T> future = new FutureTask(callable);
+            future.run();
+            return future;
+        }
+    }
 
     private int queryCount(Executor executor,MappedStatement ms,Object parameter) throws SQLException {
         Map<String,Object> one = selectOne(executor,ms,parameter);

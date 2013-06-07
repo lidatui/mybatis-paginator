@@ -12,6 +12,6 @@ public class CleanupMybatisPaginatorListener implements ServletContextListener {
     }
 
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        OffsetLimitInterceptor.ExecutorService.shutdown();
+        OffsetLimitInterceptor.ExecutorService.shutdownNow();
     }
 }
