@@ -8,11 +8,8 @@ import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.mapping.MappedStatement.Builder;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -20,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -80,7 +78,7 @@ public class OffsetLimitInterceptor implements Interceptor{
                 countTask = new Callable() {
                     public Object call() throws Exception {
                         String countSql = dialect.getCountString(bufferSql.toString());
-                        int count = queryCount(executor, copyFromNewSql(ms, boundSql, countSql), parameter);
+                        int count = queryCount(executor, copyFromNewSql(ms, boundSql, countSql,true), parameter);
                         return new Paginator(page, limit, count);
                     }
                 };
@@ -94,7 +92,7 @@ public class OffsetLimitInterceptor implements Interceptor{
             queryArgs[ROWBOUNDS_INDEX] = new RowBounds(RowBounds.NO_ROW_OFFSET,RowBounds.NO_ROW_LIMIT);
         }
 
-        queryArgs[MAPPED_STATEMENT_INDEX] = copyFromNewSql(ms,boundSql,sql);
+        queryArgs[MAPPED_STATEMENT_INDEX] = copyFromNewSql(ms,boundSql,sql, false);
 
 
         Boolean async = pageBounds.getAsyncTotalCount() == null ? asyncTotalCount : pageBounds.getAsyncTotalCount();
@@ -123,12 +121,7 @@ public class OffsetLimitInterceptor implements Interceptor{
     }
 
     private int queryCount(Executor executor,MappedStatement ms,Object parameter) throws SQLException {
-        Map<String,Object> one = selectOne(executor,ms,parameter);
-        if(one != null && !one.isEmpty()){
-            Number count = (Number)one.values().toArray()[0];
-            return count.intValue();
-        }
-        return 0;
+        return selectOne(executor,ms,parameter);
     }
 
     private <T> T selectOne(Executor executor,MappedStatement ms,Object parameter) throws SQLException {
@@ -148,9 +141,9 @@ public class OffsetLimitInterceptor implements Interceptor{
     }
 
     private MappedStatement copyFromNewSql(MappedStatement ms, BoundSql boundSql,
-                                           String sql){
+                                           String sql, boolean count){
         BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
-        return copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
+        return copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql), count);
     }
 
 	private BoundSql copyFromBoundSql(MappedStatement ms, BoundSql boundSql,
@@ -166,7 +159,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 	}
 	
 	//see: MapperBuilderAssistant
-	private MappedStatement copyFromMappedStatement(MappedStatement ms,SqlSource newSqlSource) {
+	private MappedStatement copyFromMappedStatement(MappedStatement ms,SqlSource newSqlSource , boolean count) {
 		Builder builder = new Builder(ms.getConfiguration(),ms.getId(),newSqlSource,ms.getSqlCommandType());
 		
 		builder.resource(ms.getResource());
@@ -189,7 +182,22 @@ public class OffsetLimitInterceptor implements Interceptor{
 		builder.parameterMap(ms.getParameterMap());
 		
 		//setStatementResultMap()
-		builder.resultMaps(ms.getResultMaps());
+        if(count && ms.getResultMaps() != null && !ms.getResultMaps().isEmpty()){
+            ResultMap oldResultMap = ms.getResultMaps().get(0);
+            ResultMap countResultMap = new ResultMap.Builder(
+                    ms.getConfiguration(),
+                    oldResultMap.getId()+"-Count",
+                    Integer.class,
+                    new ArrayList()
+            ).build();
+
+            List<ResultMap> resultMaps = new ArrayList<ResultMap>();
+            resultMaps.add(countResultMap) ;
+            builder.resultMaps(resultMaps);
+        }else{
+            builder.resultMaps(ms.getResultMaps());
+        }
+
 		builder.resultSetType(ms.getResultSetType());
 	    
 		//setStatementCache()
