@@ -13,8 +13,7 @@ import java.util.Collection;
  * @author badqiu
  * @author miemiedev
  */
-public class PageList<E> extends ArrayList<E> implements Serializable {
-
+public class PageList<E> extends ArrayList<E> {
     private static final long serialVersionUID = 1412759446332294208L;
     
     private Paginator paginator;

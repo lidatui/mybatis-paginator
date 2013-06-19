@@ -1,15 +1,18 @@
 package com.github.miemiedev.mybatis.paginator.domain;
 
+import java.io.Serializable;
+
 /**
  * 分页器，根据page,limit,totalCount用于页面上分页显示多项内容，计算页码和当前页的偏移量，方便页面分页使用.
  *
  * @author badqiu
  * @author miemiedev
  */
-public class Paginator implements java.io.Serializable {
-    private static final long serialVersionUID = 6089482156906595931L;
+public class Paginator implements Serializable {
+    private static final long serialVersionUID = -2429864663690465105L;
 
     private static final int DEFAULT_SLIDERS_COUNT = 7;
+
 
     /**
      * 分页大小

@@ -14,7 +14,7 @@ import java.util.List;
  *  @author miemiedev
  */
 public class PageBounds extends RowBounds implements Serializable {
-
+    private static final long serialVersionUID = -6414350656252331011L;
     public final static int NO_PAGE = 1;
     /** 页号 */
     protected int page = NO_PAGE;

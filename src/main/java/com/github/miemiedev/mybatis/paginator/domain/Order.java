@@ -1,7 +1,5 @@
 package com.github.miemiedev.mybatis.paginator.domain;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,6 +12,7 @@ import java.util.regex.Pattern;
  * @author miemiedev
  */
 public class Order implements Serializable {
+    private static final long serialVersionUID = 8138022018100161833L;
     private Direction direction;
     private String property;
     private String orderExpr;
