@@ -20,6 +20,7 @@ public class PageListJsonSerializer extends JsonSerializer<PageList> {
     public void serialize(PageList value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("totalCount", value.getPaginator().getTotalCount());
+        map.put("totalPages", value.getPaginator().getTotalPages());
         map.put("items" , new ArrayList(value));
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(jgen, map);
