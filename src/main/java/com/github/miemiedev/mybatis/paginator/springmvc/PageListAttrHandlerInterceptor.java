@@ -7,9 +7,10 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
+import java.util.Map;
 
 /**
- * 将ServletRequest的Attribute中包含PageList的属性中的Paginator取出，并建立名为原属性名+Paginator后缀的属性
+ * 将ServletRequest和ModelAndView里包含PageList的Paginator取出，并建立名为原属性名+Paginator后缀的属性
  */
 public class PageListAttrHandlerInterceptor extends HandlerInterceptorAdapter {
 
@@ -26,8 +27,19 @@ public class PageListAttrHandlerInterceptor extends HandlerInterceptorAdapter {
                 Object attr = request.getAttribute(name);
                 if(attr instanceof PageList){
                     PageList pageList = (PageList)attr;
-                    //本属性加后缀
+                    //原属性加后缀
                     request.setAttribute(name+"Paginator", pageList.getPaginator());
+                }
+            }
+        }
+        if(modelAndView != null){
+            Map<String,Object> model = modelAndView.getModel();
+            for(Map.Entry<String, Object> item : model.entrySet()){
+                Object attr = item.getValue();
+                if(attr instanceof PageList){
+                    PageList pageList = (PageList)attr;
+                    //原属性加后缀
+                    modelAndView.addObject(item.getKey()+"Paginator", pageList.getPaginator());
                 }
             }
         }
