@@ -6,6 +6,7 @@ Plugin config -->  [here](https://github.com/miemiedev/mybatis-paginator/blob/ma
 
 Use in Spring+Mybatis -->  [spring-mybaits-template](https://github.com/miemiedev/spring-mybaits-template)
 
+BTW： [中文文档](http://my.oschina.net/miemiedev/blog/135516)
 
 Downloading from the Maven central repository
 ```xml
@@ -14,7 +15,7 @@ Downloading from the Maven central repository
     <dependency>
         <groupId>com.github.miemiedev</groupId>
         <artifactId>mybatis-paginator</artifactId>
-        <version>1.2.5</version>
+        <version>1.2.10</version>
     </dependency>
  ...
 </dependencies>

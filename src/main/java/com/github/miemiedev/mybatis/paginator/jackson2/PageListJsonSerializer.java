@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,8 +20,28 @@ public class PageListJsonSerializer extends JsonSerializer<PageList> {
     @Override
     public void serialize(PageList value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         Map<String,Object> map = new HashMap<String, Object>();
-        map.put("totalCount", value.getPaginator().getTotalCount());
+        Paginator paginator = value.getPaginator();
+        map.put("totalCount", paginator.getTotalCount());
+        map.put("totalPages", paginator.getTotalPages());
+        map.put("page", paginator.getPage());
+        map.put("limit", paginator.getLimit());
         map.put("items" , new ArrayList(value));
+
+        map.put("startRow", paginator.getStartRow());
+        map.put("endRow", paginator.getEndRow());
+
+        map.put("offset", paginator.getOffset());
+
+        map.put("slider", paginator.getSlider());
+
+        map.put("prePage", paginator.getPrePage());
+        map.put("nextPage", paginator.getNextPage());
+
+        map.put("firstPage", paginator.isFirstPage());
+        map.put("hasNextPage", paginator.isHasNextPage());
+        map.put("hasPrePage", paginator.isHasPrePage());
+        map.put("lastPage", paginator.isLastPage());
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(jgen, map);
     }

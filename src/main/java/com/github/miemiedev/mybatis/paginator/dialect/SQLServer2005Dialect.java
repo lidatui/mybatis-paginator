@@ -19,7 +19,7 @@ public class SQLServer2005Dialect extends Dialect{
 		return true;
 	}
 
-	/**
+    /**
 	 * Add a LIMIT clause to the given SQL SELECT
 	 *
 	 * The LIMIT SQL will look like:
@@ -33,7 +33,7 @@ public class SQLServer2005Dialect extends Dialect{
 	 * 
 	 * @param querySqlString The SQL statement to base the limit query off of.
 	 * @param offset         Offset of the first row to be returned by the query (zero-based)
-	 * @param last           Maximum number of rows to be returned by the query
+	 * @param limit           Maximum number of rows to be returned by the query
 	 * @return A new SQL statement with the LIMIT clause applied.
 	 */
 	@Override
@@ -68,7 +68,7 @@ public class SQLServer2005Dialect extends Dialect{
 				.append(") as __row_number__, ")
 				.append(pagingBuilder)
 				.append(") SELECT * FROM query WHERE __row_number__ BETWEEN ")
-				.append(offset).append(" AND ").append(offset+limit)
+				.append(offset+1).append(" AND ").append(offset+limit)
 				.append(" ORDER BY __row_number__");
 
 		return result.toString();

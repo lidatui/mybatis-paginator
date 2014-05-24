@@ -59,10 +59,8 @@ public class SQLHelp {
         try {
             connection = mappedStatement.getConfiguration().getEnvironment().getDataSource().getConnection();
             countStmt = connection.prepareStatement(count_sql);
-            final BoundSql countBS = new BoundSql(mappedStatement.getConfiguration(), count_sql,
-                    boundSql.getParameterMappings(), parameterObject);
-
-            DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement,parameterObject,countBS);
+            //Page SQL和Count SQL的参数是一样的，在绑定参数时可以使用一样的boundSql
+            DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement,parameterObject,boundSql);
             handler.setParameters(countStmt);
 
             rs = countStmt.executeQuery();

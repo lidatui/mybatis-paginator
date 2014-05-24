@@ -7,13 +7,18 @@ import com.github.miemiedev.mybatis.paginator.domain.PageList;
 import com.github.miemiedev.mybatis.paginator.domain.Paginator;
 import com.github.miemiedev.mybatis.paginator.support.PropertiesHelper;
 import com.github.miemiedev.mybatis.paginator.support.SQLHelp;
+import org.apache.ibatis.cache.Cache;
+import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.executor.ExecutorException;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.mapping.MappedStatement.Builder;
 import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +83,18 @@ public class OffsetLimitInterceptor implements Interceptor{
             if(pageBounds.isContainsTotalCount()){
                 countTask = new Callable() {
                     public Object call() throws Exception {
-                        int count = SQLHelp.getCount(bufferSql.toString(),ms,parameter,boundSql,dialect);
+                        Integer count = null;
+                        Cache cache = ms.getCache();
+                        if(cache != null && ms.isUseCache()){
+                            CacheKey cacheKey = executor.createCacheKey(ms,parameter,new PageBounds(),copyFromBoundSql(ms,boundSql,bufferSql.toString()));
+                            count = (Integer)cache.getObject(cacheKey);
+                            if(count == null){
+                                count = SQLHelp.getCount(bufferSql.toString(),ms,parameter,boundSql,dialect);
+                                cache.putObject(cacheKey, count);
+                            }
+                        }else{
+                            count = SQLHelp.getCount(bufferSql.toString(),ms,parameter,boundSql,dialect);
+                        }
                         return new Paginator(page, limit, count);
                     }
                 };
@@ -172,7 +188,6 @@ public class OffsetLimitInterceptor implements Interceptor{
 		
 		return builder.build();
 	}
-
 
 	public Object plugin(Object target) {
 		return Plugin.wrap(target, this);
