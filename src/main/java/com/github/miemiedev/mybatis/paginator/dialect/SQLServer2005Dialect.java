@@ -1,5 +1,8 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
 
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import org.apache.ibatis.mapping.MappedStatement;
+
 /**
  *
  * @author badqiu
@@ -9,15 +12,10 @@ package com.github.miemiedev.mybatis.paginator.dialect;
 // TODO 完善并测试SQLServer2005Dialect
 public class SQLServer2005Dialect extends Dialect{
 
-	@Override
-	public boolean supportsLimit() {
-		return true;
-	}
+    public SQLServer2005Dialect(MappedStatement mappedStatement, Object parameterObject, PageBounds pageBounds) {
+        super(mappedStatement, parameterObject, pageBounds);
+    }
 
-	@Override
-	public boolean supportsLimitOffset() {
-		return true;
-	}
 
     /**
 	 * Add a LIMIT clause to the given SQL SELECT
@@ -31,19 +29,18 @@ public class SQLServer2005Dialect extends Dialect{
 	 * WHERE __row_number__ BETWEEN :offset and :lastRows
 	 * ORDER BY __row_number__
 	 * 
-	 * @param querySqlString The SQL statement to base the limit query off of.
+	 * @param sql The SQL statement to base the limit query off of.
 	 * @param offset         Offset of the first row to be returned by the query (zero-based)
 	 * @param limit           Maximum number of rows to be returned by the query
 	 * @return A new SQL statement with the LIMIT clause applied.
 	 */
-	@Override
-	public String getLimitString(String querySqlString, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		StringBuffer pagingBuilder = new StringBuffer();
-		String orderby = getOrderByPart(querySqlString);
+		String orderby = getOrderByPart(sql);
 		String distinctStr = "";
 
-		String loweredString = querySqlString.toLowerCase();
-		String sqlPartString = querySqlString;
+		String loweredString = sql.toLowerCase();
+		String sqlPartString = sql;
 		if (loweredString.trim().startsWith("select")) {
 			int index = 6;
 			if (loweredString.startsWith("select distinct")) {

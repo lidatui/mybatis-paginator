@@ -1,8 +1,15 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
 
 import com.github.miemiedev.mybatis.paginator.domain.Order;
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.session.RowBounds;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类似hibernate的Dialect,但只精简出分页部分
@@ -10,34 +17,83 @@ import java.util.List;
  * @author miemiedev
  */
 public class Dialect {
-	
-    public boolean supportsLimit(){
-    	return false;
+
+    protected MappedStatement mappedStatement;
+    protected PageBounds pageBounds;
+    protected Object parameterObject;
+    protected BoundSql boundSql;
+    protected List<ParameterMapping> parameterMappings;
+    protected Map<String, Object> pageParameters = new HashMap<String, Object>();
+
+    private String pageSQL;
+    private String countSQL;
+
+
+    public Dialect(MappedStatement mappedStatement, Object parameterObject, PageBounds pageBounds){
+        this.mappedStatement = mappedStatement;
+        this.parameterObject = parameterObject;
+        this.pageBounds = pageBounds;
+
+        init();
     }
 
-    public boolean supportsLimitOffset() {
-    	return supportsLimit();
+    protected void init(){
+        boundSql = mappedStatement.getBoundSql(parameterObject);
+        parameterMappings = boundSql.getParameterMappings();
+        if(parameterObject instanceof Map){
+            pageParameters.putAll((Map)parameterObject);
+        }else{
+            for (ParameterMapping parameterMapping : parameterMappings) {
+                pageParameters.put(parameterMapping.getProperty(),parameterObject);
+            }
+        }
+
+        StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
+        if(bufferSql.lastIndexOf(";") == bufferSql.length()-1){
+            bufferSql.deleteCharAt(bufferSql.length()-1);
+        }
+        String sql = bufferSql.toString();
+
+        if(pageBounds.getOrders() != null && !pageBounds.getOrders().isEmpty()){
+            sql = getSortString(sql, pageBounds.getOrders());
+        }
+
+        pageSQL = getLimitString(sql, "__offset", pageBounds.getOffset(), "__limit",pageBounds.getLimit());
+
+        countSQL = getCountString(sql);
     }
+
+
+    public List<ParameterMapping> getParameterMappings(){
+        return parameterMappings;
+    }
+
+    public Object getParameterObject(){
+        return pageParameters;
+    }
+
+
+    public String getPageSQL(){
+        return pageSQL;
+    }
+
+    protected void setPageParameter(String name, Object value, Class type){
+        ParameterMapping parameterMapping = new ParameterMapping.Builder(mappedStatement.getConfiguration(), name, type).build();
+        parameterMappings.add(parameterMapping);
+        pageParameters.put(name, value);
+    }
+
+
+    public String getCountSQL(){
+        return countSQL;
+    }
+
     
     /**
-     * 将sql变成分页sql语句,直接使用offset,limit的值作为占位符.</br>
-     * 源代码为: getLimitString(sql,offset,String.valueOf(offset),limit,String.valueOf(limit))
+     * 将sql变成分页sql语句
      */
-    public String getLimitString(String sql, int offset, int limit) {
-    	return getLimitString(sql,offset,Integer.toString(offset),limit,Integer.toString(limit));
-    }
-    
-    /**
-     * 将sql变成分页sql语句,提供将offset及limit使用占位符(placeholder)替换.
-     * <pre>
-     * 如mysql
-     * dialect.getLimitString("select * from user", 12, ":offset",0,":limit") 将返回
-     * select * from user limit :offset,:limit
-     * </pre>
-     * @return 包含占位符的分页sql
-     */
-    public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit,String limitPlaceholder) {
-    	throw new UnsupportedOperationException("paged queries not supported");
+    protected String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
+        throw new UnsupportedOperationException("paged queries not supported");
     }
 
     /**
@@ -45,7 +101,7 @@ public class Dialect {
      * @param sql SQL语句
      * @return 总记录数的sql
      */
-    public String getCountString(String sql){
+    protected String getCountString(String sql){
         return "select count(1) from (" + sql + ") tmp_count";
     }
 
@@ -54,7 +110,7 @@ public class Dialect {
      * @param sql SQL语句
      * @return 总记录数的sql
      */
-    public String getSortString(String sql, List<Order> orders){
+    protected String getSortString(String sql, List<Order> orders){
         if(orders == null || orders.isEmpty()){
             return sql;
         }

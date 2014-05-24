@@ -1,16 +1,17 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
+
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import org.apache.ibatis.mapping.MappedStatement;
+
 /**
  * @author badqiu
  */
 public class SQLServerDialect extends Dialect{
 
-	public boolean supportsLimitOffset(){
-		return false;
-	}
-	
-	public boolean supportsLimit() {
-		return true;
-	}
+    public SQLServerDialect(MappedStatement mappedStatement, Object parameterObject, PageBounds pageBounds) {
+        super(mappedStatement, parameterObject, pageBounds);
+    }
+
 	
 	static int getAfterSelectInsertPoint(String sql) {
 		int selectIndex = sql.toLowerCase().indexOf( "select" );
@@ -18,11 +19,8 @@ public class SQLServerDialect extends Dialect{
 		return selectIndex + ( selectDistinctIndex == selectIndex ? 15 : 6 );
 	}
 
-	public String getLimitString(String sql, int offset, int limit) {
-		return getLimitString(sql,offset,null,limit,null);
-	}
 
-	public String getLimitString(String querySelect, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		if ( offset > 0 ) {
 			throw new UnsupportedOperationException( "sql server has no offset" );
 		}
@@ -30,9 +28,9 @@ public class SQLServerDialect extends Dialect{
 //			throw new UnsupportedOperationException(" sql server not support variable limit");
 //		}
 		
-		return new StringBuffer( querySelect.length() + 8 )
-				.append( querySelect )
-				.insert( getAfterSelectInsertPoint( querySelect ), " top " + limit )
+		return new StringBuffer( sql.length() + 8 )
+				.append( sql )
+				.insert( getAfterSelectInsertPoint( sql ), " top " + limit )
 				.toString();
 	}
 	

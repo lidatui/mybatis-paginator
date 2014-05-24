@@ -22,11 +22,9 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 
 
@@ -51,7 +49,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 	static int RESULT_HANDLER_INDEX = 3;
 
     static ExecutorService Pool;
-    Dialect dialect;
+    String dialectClass;
     boolean asyncTotalCount = false;
 	
 	public Object intercept(final Invocation invocation) throws Throwable {
@@ -62,54 +60,26 @@ public class OffsetLimitInterceptor implements Interceptor{
         final RowBounds rowBounds = (RowBounds)queryArgs[ROWBOUNDS_INDEX];
         final PageBounds pageBounds = new PageBounds(rowBounds);
 
-        final int offset = pageBounds.getOffset();
-        final int limit = pageBounds.getLimit();
-        final int page = pageBounds.getPage();
+        if(pageBounds.getOffset() == RowBounds.NO_ROW_OFFSET
+                && pageBounds.getLimit() == RowBounds.NO_ROW_LIMIT
+                && pageBounds.getOrders().isEmpty()){
+            return invocation.proceed();
+        }
+
+        final Dialect dialect;
+        try {
+            Class clazz = Class.forName(dialectClass);
+            Constructor constructor = clazz.getConstructor(MappedStatement.class, Object.class, PageBounds.class);
+            dialect = (Dialect)constructor.newInstance(new Object[]{ms, parameter, pageBounds});
+        } catch (Exception e) {
+            throw new ClassNotFoundException("Cannot create dialect instance: "+dialectClass,e);
+        }
 
         final BoundSql boundSql = ms.getBoundSql(parameter);
-        final StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
-        if(bufferSql.lastIndexOf(";") == bufferSql.length()-1){
-            bufferSql.deleteCharAt(bufferSql.length()-1);
-        }
-        String sql = bufferSql.toString();
 
-        if(pageBounds.getOrders() != null && !pageBounds.getOrders().isEmpty()){
-            sql = dialect.getSortString(sql, pageBounds.getOrders());
-        }
-
-        Callable<Paginator> countTask = null;
-
-        if(dialect.supportsLimit() && (offset != RowBounds.NO_ROW_OFFSET || limit != RowBounds.NO_ROW_LIMIT)) {
-            if(pageBounds.isContainsTotalCount()){
-                countTask = new Callable() {
-                    public Object call() throws Exception {
-                        Integer count = null;
-                        Cache cache = ms.getCache();
-                        if(cache != null && ms.isUseCache()){
-                            CacheKey cacheKey = executor.createCacheKey(ms,parameter,new PageBounds(),copyFromBoundSql(ms,boundSql,bufferSql.toString()));
-                            count = (Integer)cache.getObject(cacheKey);
-                            if(count == null){
-                                count = SQLHelp.getCount(bufferSql.toString(),ms,parameter,boundSql,dialect);
-                                cache.putObject(cacheKey, count);
-                            }
-                        }else{
-                            count = SQLHelp.getCount(bufferSql.toString(),ms,parameter,boundSql,dialect);
-                        }
-                        return new Paginator(page, limit, count);
-                    }
-                };
-            }
-
-            if (dialect.supportsLimitOffset()) {
-                sql = dialect.getLimitString(sql, offset, limit);
-            } else {
-                sql = dialect.getLimitString(sql, 0, limit);
-            }
-            queryArgs[ROWBOUNDS_INDEX] = new RowBounds(RowBounds.NO_ROW_OFFSET,RowBounds.NO_ROW_LIMIT);
-        }
-
-        queryArgs[MAPPED_STATEMENT_INDEX] = copyFromNewSql(ms,boundSql,sql);
-
+        queryArgs[MAPPED_STATEMENT_INDEX] = copyFromNewSql(ms,boundSql,dialect.getPageSQL(), dialect.getParameterMappings(), dialect.getParameterObject());
+        queryArgs[PARAMETER_INDEX] = dialect.getParameterObject();
+        queryArgs[ROWBOUNDS_INDEX] = new RowBounds(RowBounds.NO_ROW_OFFSET,RowBounds.NO_ROW_LIMIT);
 
         Boolean async = pageBounds.getAsyncTotalCount() == null ? asyncTotalCount : pageBounds.getAsyncTotalCount();
         Future<List> listFuture = call(new Callable<List>() {
@@ -118,7 +88,25 @@ public class OffsetLimitInterceptor implements Interceptor{
             }
         }, async);
 
-        if(countTask!=null){
+
+        if(pageBounds.isContainsTotalCount()){
+            Callable<Paginator> countTask = new Callable() {
+                public Object call() throws Exception {
+                    Integer count;
+                    Cache cache = ms.getCache();
+                    if(cache != null && ms.isUseCache()){
+                        CacheKey cacheKey = executor.createCacheKey(ms,parameter,new PageBounds(),copyFromBoundSql(ms,boundSql,dialect.getCountSQL(), boundSql.getParameterMappings(), boundSql.getParameterObject()));
+                        count = (Integer)cache.getObject(cacheKey);
+                        if(count == null){
+                            count = SQLHelp.getCount(ms,parameter,boundSql,dialect);
+                            cache.putObject(cacheKey, count);
+                        }
+                    }else{
+                        count = SQLHelp.getCount(ms,parameter,boundSql,dialect);
+                    }
+                    return new Paginator(pageBounds.getPage(), pageBounds.getLimit(), count);
+                }
+            };
             Future<Paginator> countFutrue = call(countTask, async);
             return new PageList(listFuture.get(),countFutrue.get());
         }
@@ -137,14 +125,14 @@ public class OffsetLimitInterceptor implements Interceptor{
     }
 
     private MappedStatement copyFromNewSql(MappedStatement ms, BoundSql boundSql,
-                                           String sql){
-        BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql);
+                                           String sql, List<ParameterMapping> parameterMappings, Object parameter){
+        BoundSql newBoundSql = copyFromBoundSql(ms, boundSql, sql, parameterMappings, parameter);
         return copyFromMappedStatement(ms, new BoundSqlSqlSource(newBoundSql));
     }
 
 	private BoundSql copyFromBoundSql(MappedStatement ms, BoundSql boundSql,
-			String sql) {
-		BoundSql newBoundSql = new BoundSql(ms.getConfiguration(),sql, boundSql.getParameterMappings(), boundSql.getParameterObject());
+			String sql, List<ParameterMapping> parameterMappings,Object parameter) {
+		BoundSql newBoundSql = new BoundSql(ms.getConfiguration(),sql, parameterMappings, parameter);
 		for (ParameterMapping mapping : boundSql.getParameterMappings()) {
 		    String prop = mapping.getProperty();
 		    if (boundSql.hasAdditionalParameter(prop)) {
@@ -196,11 +184,7 @@ public class OffsetLimitInterceptor implements Interceptor{
 	public void setProperties(Properties properties) {
         PropertiesHelper propertiesHelper = new PropertiesHelper(properties);
 		String dialectClass = propertiesHelper.getRequiredString("dialectClass");
-		try {
-            setDialect((Dialect) Class.forName(dialectClass).newInstance());
-		} catch (Exception e) {
-			throw new RuntimeException("cannot create dialect instance by dialectClass:"+dialectClass,e);
-		}
+		setDialectClass(dialectClass);
 
         setAsyncTotalCount(propertiesHelper.getBoolean("asyncTotalCount",false));
 
@@ -218,9 +202,9 @@ public class OffsetLimitInterceptor implements Interceptor{
 		}
 	}
 
-    public void setDialect(Dialect dialect) {
-        logger.debug("dialectClass: {} ", dialect.getClass().getName());
-        this.dialect = dialect;
+    public void setDialectClass(String dialectClass) {
+        logger.debug("dialectClass: {} ", dialectClass);
+        this.dialectClass = dialectClass;
     }
 
     public void setAsyncTotalCount(boolean asyncTotalCount) {

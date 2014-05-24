@@ -1,18 +1,18 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
+
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import org.apache.ibatis.mapping.MappedStatement;
+
 /**
  * @author badqiu
  */
 public class OracleDialect extends Dialect{
-	
-	public boolean supportsLimit() {
-		return true;
-	}
 
-	public boolean supportsLimitOffset() {
-		return true;
-	}
+    public OracleDialect(MappedStatement mappedStatement, Object parameterObject, PageBounds pageBounds) {
+        super(mappedStatement, parameterObject, pageBounds);
+    }
 	
-	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		sql = sql.trim();
 		boolean isForUpdate = false;
 		if ( sql.toLowerCase().endsWith(" for update") ) {
@@ -30,11 +30,11 @@ public class OracleDialect extends Dialect{
 		pagingSelect.append(sql);
 		if (offset > 0) {
 //			int end = offset+limit;
-			String endString = offsetPlaceholder+"+"+limitPlaceholder;
-			pagingSelect.append(" ) row_ ) where rownum_ <= " + endString + " and rownum_ > " + offsetPlaceholder);
+			String endString = String.valueOf(offset)+"+"+String.valueOf(limit);
+			pagingSelect.append(" ) row_ ) where rownum_ <= " + endString + " and rownum_ > " + String.valueOf(offset));
 		}
 		else {
-			pagingSelect.append(" ) where rownum <= " + limitPlaceholder);
+			pagingSelect.append(" ) where rownum <= " + String.valueOf(limit));
 		}
 
 		if ( isForUpdate ) {

@@ -46,10 +46,10 @@ public class SQLHelp {
      * @return 总记录数
      * @throws java.sql.SQLException sql查询错误
      */
-    public static int getCount(final String sql,
+    public static int getCount(
                                final MappedStatement mappedStatement, final Object parameterObject,
                                final BoundSql boundSql, Dialect dialect) throws SQLException {
-        final String count_sql = dialect.getCountString(sql);
+        final String count_sql = dialect.getCountSQL();
         logger.debug("Total count SQL [{}] ", count_sql);
         logger.debug("Total count Parameters: {} ", parameterObject);
 

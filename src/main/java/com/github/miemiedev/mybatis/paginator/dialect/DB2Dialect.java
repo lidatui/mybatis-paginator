@@ -1,17 +1,16 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
 
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import org.apache.ibatis.mapping.MappedStatement;
+
 /**
  * @author badqiu
  */
 public class DB2Dialect extends Dialect{
 
-	public boolean supportsLimit() {
-		return true;
-	}
-	
-	public boolean supportsLimitOffset(){
-		return true;
-	}
+    public DB2Dialect(MappedStatement mappedStatement, Object parameterObject, PageBounds pageBounds) {
+        super(mappedStatement, parameterObject, pageBounds);
+    }
 	
 	private static String getRowNumber(String sql) {
 		StringBuffer rownumber = new StringBuffer(50)
@@ -32,7 +31,7 @@ public class DB2Dialect extends Dialect{
 		return sql.toLowerCase().indexOf("select distinct")>=0;
 	}
 
-	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		int startOfSelect = sql.toLowerCase().indexOf("select");
 
 		StringBuffer pagingSelect = new StringBuffer( sql.length()+100 )
@@ -54,11 +53,11 @@ public class DB2Dialect extends Dialect{
 		//add the restriction to the outer select
 		if (offset > 0) {
 //			int end = offset + limit;
-			String endString = offsetPlaceholder+"+"+limitPlaceholder;
-			pagingSelect.append("between "+offsetPlaceholder+"+1 and "+endString);
+			String endString = String.valueOf(offset)+"+"+String.valueOf(limit);
+			pagingSelect.append("between "+String.valueOf(offset)+"+1 and "+endString);
 		}
 		else {
-			pagingSelect.append("<= "+limitPlaceholder);
+			pagingSelect.append("<= "+String.valueOf(limit));
 		}
 
 		return pagingSelect.toString();

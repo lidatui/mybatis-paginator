@@ -1,6 +1,9 @@
 package com.github.miemiedev.mybatis.paginator.dialect;
 
 
+import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
+import org.apache.ibatis.mapping.MappedStatement;
+
 /**
  * A dialect compatible with the H2 database.
  * 
@@ -9,30 +12,16 @@ package com.github.miemiedev.mybatis.paginator.dialect;
  */
 public class H2Dialect extends Dialect {
 
-    public boolean supportsLimit() {
-        return true;
+    public H2Dialect(MappedStatement mappedStatement, Object parameterObject, PageBounds pageBounds) {
+        super(mappedStatement, parameterObject, pageBounds);
     }
 
-	public String getLimitString(String sql, int offset,String offsetPlaceholder, int limit, String limitPlaceholder) {
+	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		return new StringBuffer(sql.length() + 40).
 			append(sql).
-			append((offset > 0) ? " limit "+limitPlaceholder+" offset "+offsetPlaceholder : " limit "+limitPlaceholder).
+			append((offset > 0) ? " limit "+String.valueOf(limit)+" offset "+String.valueOf(offset) : " limit "+String.valueOf(limit)).
 			toString();
 	}
 
-	@Override
-	public boolean supportsLimitOffset() {
-		return true;
-	}
-    
-//    public boolean bindLimitParametersInReverseOrder() {
-//        return true;
-//    }    
-//
-//    public boolean bindLimitParametersFirst() {
-//        return false;
-//    }
-
-    
 
 }
