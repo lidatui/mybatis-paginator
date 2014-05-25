@@ -4,7 +4,8 @@ import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
- * @author badqiu
+ *  @author badqiu
+ *  @author miemiedev
  */
 public class DB2Dialect extends Dialect{
 
@@ -31,7 +32,7 @@ public class DB2Dialect extends Dialect{
 		return sql.toLowerCase().indexOf("select distinct")>=0;
 	}
 
-	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
+    protected String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		int startOfSelect = sql.toLowerCase().indexOf("select");
 
 		StringBuffer pagingSelect = new StringBuffer( sql.length()+100 )
@@ -52,12 +53,13 @@ public class DB2Dialect extends Dialect{
 
 		//add the restriction to the outer select
 		if (offset > 0) {
-//			int end = offset + limit;
-			String endString = String.valueOf(offset)+"+"+String.valueOf(limit);
-			pagingSelect.append("between "+String.valueOf(offset)+"+1 and "+endString);
+			pagingSelect.append("between ?+1 and ?");
+            setPageParameter(offsetName,offset,Integer.class);
+            setPageParameter("__offsetEnd",offset+limit,Integer.class);
 		}
 		else {
-			pagingSelect.append("<= "+String.valueOf(limit));
+			pagingSelect.append("<= ?");
+            setPageParameter(limitName,limit,Integer.class);
 		}
 
 		return pagingSelect.toString();

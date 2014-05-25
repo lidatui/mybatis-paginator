@@ -6,7 +6,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 /**
  *
  * @author badqiu
- *
+ * @author miemiedev
  */
 // Hibernate BUG: http://opensource.atlassian.com/projects/hibernate/browse/HHH-2655
 // TODO 完善并测试SQLServer2005Dialect
@@ -34,7 +34,7 @@ public class SQLServer2005Dialect extends Dialect{
 	 * @param limit           Maximum number of rows to be returned by the query
 	 * @return A new SQL statement with the LIMIT clause applied.
 	 */
-	public String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
+    protected String getLimitString(String sql, String offsetName,int offset, String limitName, int limit) {
 		StringBuffer pagingBuilder = new StringBuffer();
 		String orderby = getOrderByPart(sql);
 		String distinctStr = "";
@@ -64,10 +64,10 @@ public class SQLServer2005Dialect extends Dialect{
 				.append(orderby)
 				.append(") as __row_number__, ")
 				.append(pagingBuilder)
-				.append(") SELECT * FROM query WHERE __row_number__ BETWEEN ")
-				.append(offset+1).append(" AND ").append(offset+limit)
+				.append(") SELECT * FROM query WHERE __row_number__ BETWEEN ? AND ?")
 				.append(" ORDER BY __row_number__");
-
+        setPageParameter(offsetName,offset,Integer.class);
+        setPageParameter("__offsetEnd",offset+limit,Integer.class);
 		return result.toString();
 	}
 
