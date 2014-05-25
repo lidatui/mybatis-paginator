@@ -7,6 +7,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.session.RowBounds;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class Dialect {
 
     protected void init(){
         boundSql = mappedStatement.getBoundSql(parameterObject);
-        parameterMappings = boundSql.getParameterMappings();
+        parameterMappings = new ArrayList(boundSql.getParameterMappings());
         if(parameterObject instanceof Map){
             pageParameters.putAll((Map)parameterObject);
         }else{
