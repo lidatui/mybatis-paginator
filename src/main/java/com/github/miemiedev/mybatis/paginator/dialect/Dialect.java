@@ -60,7 +60,7 @@ public class Dialect {
         }
         if(pageBounds.getOffset() != RowBounds.NO_ROW_OFFSET
                 || pageBounds.getLimit() != RowBounds.NO_ROW_LIMIT){
-            pageSQL = getLimitString(sql, "__offset", pageBounds.getOffset(), "__limit",pageBounds.getLimit());
+            pageSQL = getLimitString(pageSQL, "__offset", pageBounds.getOffset(), "__limit",pageBounds.getLimit());
         }
 
 
