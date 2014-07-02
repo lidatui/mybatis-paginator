@@ -17,6 +17,15 @@ import java.util.Map;
  * @author miemiedev
  */
 public class PageListJsonSerializer extends JsonSerializer<PageList> {
+    ObjectMapper mapper;
+
+    public PageListJsonSerializer(){
+        mapper = new ObjectMapper();
+    }
+
+    public PageListJsonSerializer(ObjectMapper mapper){
+        this.mapper = mapper;
+    }
     @Override
     public void serialize(PageList value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         Map<String,Object> map = new HashMap<String, Object>();
@@ -42,7 +51,6 @@ public class PageListJsonSerializer extends JsonSerializer<PageList> {
         map.put("hasPrePage", paginator.isHasPrePage());
         map.put("lastPage", paginator.isLastPage());
 
-        ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(jgen, map);
     }
 }

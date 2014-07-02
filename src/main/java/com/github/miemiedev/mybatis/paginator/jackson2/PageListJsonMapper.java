@@ -12,7 +12,7 @@ public class PageListJsonMapper extends ObjectMapper{
 
     public PageListJsonMapper() {
         SimpleModule module = new SimpleModule("PageListJSONModule", new Version(1, 0, 0, null, null, null));
-        module.addSerializer(PageList.class, new PageListJsonSerializer());
+        module.addSerializer(PageList.class, new PageListJsonSerializer(this));
         registerModule(module);
     }
 }
