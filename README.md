@@ -15,7 +15,7 @@ Downloading from the Maven central repository
     <dependency>
         <groupId>com.github.miemiedev</groupId>
         <artifactId>mybatis-paginator</artifactId>
-        <version>1.2.11</version>
+        <version>1.2.12</version>
     </dependency>
  ...
 </dependencies>
