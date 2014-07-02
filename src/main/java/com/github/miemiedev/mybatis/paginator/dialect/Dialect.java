@@ -54,7 +54,7 @@ public class Dialect {
             bufferSql.deleteCharAt(bufferSql.length()-1);
         }
         String sql = bufferSql.toString();
-
+        pageSQL = sql;
         if(pageBounds.getOrders() != null && !pageBounds.getOrders().isEmpty()){
             pageSQL = getSortString(sql, pageBounds.getOrders());
         }
