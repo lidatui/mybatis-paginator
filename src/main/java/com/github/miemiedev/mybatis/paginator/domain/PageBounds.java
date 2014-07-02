@@ -23,11 +23,13 @@ public class PageBounds extends RowBounds implements Serializable {
     /** 分页排序信息 */
     protected List<Order> orders = new ArrayList<Order>();
     /** 结果集是否包含TotalCount */
-    protected boolean containsTotalCount = true;
+    protected boolean containsTotalCount;
 
     protected Boolean asyncTotalCount;
 
-    public PageBounds(){}
+    public PageBounds(){
+        containsTotalCount = false;
+    }
 
     public PageBounds(RowBounds rowBounds) {
         if(rowBounds instanceof PageBounds){
