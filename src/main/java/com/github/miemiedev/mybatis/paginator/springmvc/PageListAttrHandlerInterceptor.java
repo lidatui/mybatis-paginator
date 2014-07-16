@@ -7,6 +7,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -34,14 +35,16 @@ public class PageListAttrHandlerInterceptor extends HandlerInterceptorAdapter {
         }
         if(modelAndView != null){
             Map<String,Object> model = modelAndView.getModel();
+            Map<String,Object> newModel = new HashMap<String, Object>();
             for(Map.Entry<String, Object> item : model.entrySet()){
                 Object attr = item.getValue();
                 if(attr instanceof PageList){
                     PageList pageList = (PageList)attr;
                     //原属性加后缀
-                    modelAndView.addObject(item.getKey()+"Paginator", pageList.getPaginator());
+                    newModel.put(item.getKey()+"Paginator", pageList.getPaginator());
                 }
             }
+            modelAndView.addAllObjects(newModel);
         }
     }
 
