@@ -94,7 +94,7 @@ public class OffsetLimitInterceptor implements Interceptor{
                 public Object call() throws Exception {
                     Integer count;
                     Cache cache = ms.getCache();
-                    if(cache != null && ms.isUseCache()){
+                    if(cache != null && ms.isUseCache() && ms.getConfiguration().isCacheEnabled()){
                         CacheKey cacheKey = executor.createCacheKey(ms,parameter,new PageBounds(),copyFromBoundSql(ms,boundSql,dialect.getCountSQL(), boundSql.getParameterMappings(), boundSql.getParameterObject()));
                         count = (Integer)cache.getObject(cacheKey);
                         if(count == null){
