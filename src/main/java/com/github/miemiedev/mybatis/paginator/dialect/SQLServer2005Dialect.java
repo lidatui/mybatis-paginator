@@ -64,7 +64,7 @@ public class SQLServer2005Dialect extends Dialect{
 				.append(orderby)
 				.append(") as __row_number__, ")
 				.append(pagingBuilder)
-				.append(") SELECT * FROM query WHERE __row_number__ BETWEEN ? AND ?")
+				.append(") SELECT * FROM query WHERE __row_number__ > ? AND __row_number__ <= ?")
 				.append(" ORDER BY __row_number__");
         setPageParameter(offsetName,offset,Integer.class);
         setPageParameter("__offsetEnd",offset+limit,Integer.class);
