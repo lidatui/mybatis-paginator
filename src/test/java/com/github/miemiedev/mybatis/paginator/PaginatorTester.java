@@ -22,7 +22,7 @@ public class PaginatorTester extends SimulateBaseDao{
     @Test
     public void controllerMethod() throws IOException {
         int page = 1;
-        int pageSize = 20;
+        int pageSize = 20; 
         String sortString = "age.asc,gender.desc";
         PageBounds pageBounds = new PageBounds(page, pageSize , Order.formString(sortString));
         //Oracle sorting of chinese pinyin
