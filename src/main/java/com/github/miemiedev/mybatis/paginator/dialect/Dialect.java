@@ -108,7 +108,37 @@ public class Dialect {
     protected String getCountString(String sql){
         return "select count(1) from (" + sql + ") tmp_count";
     }
-
+    /**
+     * 将sql转换为总记录数SQL 尽量避免嵌套查询，提升查询速度 
+     * @param sql SQL语句
+     * @return 总记录数的sql 
+     */
+     public String getCountString2(String sql){
+    	int select_position=-1;
+    	if(sql.startsWith("select")){
+    		select_position=sql.indexOf("select");
+    	}
+    	else if(sql.startsWith("SELECT")){
+    		select_position=sql.indexOf("SELECT");
+    	}
+    	
+    	int from_position =0;
+    	if(sql.contains("from")){
+    		from_position=sql.indexOf("from");
+    	}
+    	else if(sql.contains("FROM")){
+    		from_position=sql.indexOf("FROM");
+    	}
+    	
+    	if(select_position>=0&&from_position>0)
+    	{
+    		return sql.substring(select_position,6)+" count(1) "+sql.substring(from_position);
+    	}
+    	else{
+    		 return "select count(1) from (" + sql + ") tmp_count";
+    	}
+       
+    }
     /**
      * 将sql转换为带排序的SQL
      * @param sql SQL语句
