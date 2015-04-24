@@ -63,12 +63,15 @@ public class Dialect {
             bufferSql.deleteCharAt(bufferSql.length()-1);
         }
         String sql = bufferSql.toString();
-
+        pageSQL = sql;
         if(pageBounds.getOrders() != null && !pageBounds.getOrders().isEmpty()){
-            sql = getSortString(sql, pageBounds.getOrders());
+            pageSQL = getSortString(sql, pageBounds.getOrders());
+        }
+        if(pageBounds.getOffset() != RowBounds.NO_ROW_OFFSET
+                || pageBounds.getLimit() != RowBounds.NO_ROW_LIMIT){
+            pageSQL = getLimitString(pageSQL, "__offset", pageBounds.getOffset(), "__limit",pageBounds.getLimit());
         }
 
-        pageSQL = getLimitString(sql, "__offset", pageBounds.getOffset(), "__limit",pageBounds.getLimit());
 
         countSQL = getCountString(sql);
     }

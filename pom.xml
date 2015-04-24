@@ -12,7 +12,7 @@
 
     <groupId>com.github.miemiedev</groupId>
     <artifactId>mybatis-paginator</artifactId>
-    <version>1.2.11</version>
+    <version>1.2.15</version>
     <packaging>jar</packaging>
     <name>mybatis-paginator</name>
     <description>A Mybatis plugin, implementation of database paging and sorting</description>
@@ -116,12 +116,7 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.2.0</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
