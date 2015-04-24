@@ -19,6 +19,7 @@ package com.github.miemiedev.mybatis.paginator.support;
 import com.github.miemiedev.mybatis.paginator.dialect.Dialect;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,45 +47,25 @@ public class SQLHelp {
      * @throws java.sql.SQLException sql查询错误
      */
     public static int getCount(
-                               final MappedStatement mappedStatement, final Object parameterObject,
+                               final MappedStatement mappedStatement, final Transaction transaction, final Object parameterObject,
                                final BoundSql boundSql, Dialect dialect) throws SQLException {
         final String count_sql = dialect.getCountSQL();
         logger.debug("Total count SQL [{}] ", count_sql);
         logger.debug("Total count Parameters: {} ", parameterObject);
 
-        Connection connection = null;
-        PreparedStatement countStmt = null;
-        ResultSet rs = null;
-        try {
-            connection = mappedStatement.getConfiguration().getEnvironment().getDataSource().getConnection();
-            countStmt = connection.prepareStatement(count_sql);
-            DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement,parameterObject,boundSql);
-            handler.setParameters(countStmt);
+        Connection connection = transaction.getConnection();
+        PreparedStatement countStmt = connection.prepareStatement(count_sql);
+        DefaultParameterHandler handler = new DefaultParameterHandler(mappedStatement,parameterObject,boundSql);
+        handler.setParameters(countStmt);
 
-            rs = countStmt.executeQuery();
-            int count = 0;
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-            logger.debug("Total count: {}", count);
-            return count;
-        } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-            } finally {
-                try {
-                    if (countStmt != null) {
-                        countStmt.close();
-                    }
-                } finally {
-                    if (connection != null && !connection.isClosed()) {
-                        connection.close();
-                    }
-                }
-            }
+        ResultSet rs = countStmt.executeQuery();
+        int count = 0;
+        if (rs.next()) {
+            count = rs.getInt(1);
         }
+        logger.debug("Total count: {}", count);
+        return count;
+
     }
 
 }

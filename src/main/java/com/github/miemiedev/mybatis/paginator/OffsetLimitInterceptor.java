@@ -98,11 +98,11 @@ public class OffsetLimitInterceptor implements Interceptor{
                         CacheKey cacheKey = executor.createCacheKey(ms,parameter,new PageBounds(),copyFromBoundSql(ms,boundSql,dialect.getCountSQL(), boundSql.getParameterMappings(), boundSql.getParameterObject()));
                         count = (Integer)cache.getObject(cacheKey);
                         if(count == null){
-                            count = SQLHelp.getCount(ms,parameter,boundSql,dialect);
+                            count = SQLHelp.getCount(ms,executor.getTransaction(),parameter,boundSql,dialect);
                             cache.putObject(cacheKey, count);
                         }
                     }else{
-                        count = SQLHelp.getCount(ms,parameter,boundSql,dialect);
+                        count = SQLHelp.getCount(ms,executor.getTransaction(),parameter,boundSql,dialect);
                     }
                     return new Paginator(pageBounds.getPage(), pageBounds.getLimit(), count);
                 }

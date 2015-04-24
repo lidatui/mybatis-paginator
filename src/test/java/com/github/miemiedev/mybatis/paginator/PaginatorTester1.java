@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.miemiedev.mybatis.paginator.domain.Order;
 import com.github.miemiedev.mybatis.paginator.domain.PageBounds;
 import com.github.miemiedev.mybatis.paginator.domain.PageList;
+import com.github.miemiedev.mybatis.paginator.example.City;
 import com.github.miemiedev.mybatis.paginator.jackson2.PageListJsonMapper;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
@@ -17,7 +18,7 @@ import java.util.Map;
  * @author miemiedev
  */
 
-public class PaginatorTester extends SimulateBaseDao{
+public class PaginatorTester1 extends SimulateBaseDao{
 
     @Test
     public void controllerMethod() throws IOException {
@@ -33,7 +34,10 @@ public class PaginatorTester extends SimulateBaseDao{
         //  order by age ASC, gender DESC, nlssort(name ,'NLS_SORT=SCHINESE_PINYIN_M') DESC, score DESC nulls last
 
 
-        List list = findByCity("370100", pageBounds);
+        City city = new City();
+        city.setCode("370800");
+
+        List list = findByCity(city, pageBounds);
 
         //Get totalCount
         PageList pageList = (PageList)list;
@@ -44,14 +48,12 @@ public class PaginatorTester extends SimulateBaseDao{
         System.out.println(objectMapper.writeValueAsString(list));
     }
 
-    public List findByCity(String code, PageBounds pageBounds){
+    public List findByCity(City city, PageBounds pageBounds){
         SqlSession session = null;
         try{
             session = getSqlSession();
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("code",code);
 
-            return session.selectList("db.table.city.findByCity", params, pageBounds);
+            return session.selectList("db.table.city.findByCity", city, pageBounds);
         }finally {
             session.close();
         }
