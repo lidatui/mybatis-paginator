@@ -12,7 +12,7 @@
 
     <groupId>com.github.miemiedev</groupId>
     <artifactId>mybatis-paginator</artifactId>
-    <version>1.2.16</version>
+    <version>1.2.17</version>
     <packaging>jar</packaging>
     <name>mybatis-paginator</name>
     <description>A Mybatis plugin, implementation of database paging and sorting</description>
@@ -52,19 +52,7 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
 

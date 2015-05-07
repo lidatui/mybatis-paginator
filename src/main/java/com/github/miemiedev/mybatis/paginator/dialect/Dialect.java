@@ -49,7 +49,7 @@ public class Dialect {
         parameterMappings = new ArrayList(boundSql.getParameterMappings());
         if(parameterObject instanceof Map){
             pageParameters.putAll((Map)parameterObject);
-        }else{
+        }else if(parameterObject != null){
             MetaObject metaObject = mappedStatement.getConfiguration().newMetaObject(parameterObject);
             BeanWrapper wrapper = new BeanWrapper(metaObject,parameterObject);
             for (ParameterMapping parameterMapping : parameterMappings) {
