@@ -8,13 +8,12 @@ import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.reflection.wrapper.BeanWrapper;
+import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.type.SimpleTypeRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 类似hibernate的Dialect,但只精简出分页部分
@@ -49,13 +48,24 @@ public class Dialect {
         parameterMappings = new ArrayList(boundSql.getParameterMappings());
         if(parameterObject instanceof Map){
             pageParameters.putAll((Map)parameterObject);
-        }else if(parameterObject != null){
-            MetaObject metaObject = mappedStatement.getConfiguration().newMetaObject(parameterObject);
-            BeanWrapper wrapper = new BeanWrapper(metaObject,parameterObject);
-            for (ParameterMapping parameterMapping : parameterMappings) {
-                PropertyTokenizer prop = new PropertyTokenizer(parameterMapping.getProperty());
-                pageParameters.put(parameterMapping.getProperty(),wrapper.get(prop));
+        }else if( parameterObject != null){
+            Class cls = parameterObject.getClass();
+            if(cls.isPrimitive() || cls.isArray() ||
+                    SimpleTypeRegistry.isSimpleType(cls) ||
+                    Enum.class.isAssignableFrom(cls) ||
+                    Collection.class.isAssignableFrom(cls)){
+                for (ParameterMapping parameterMapping : parameterMappings) {
+                    pageParameters.put(parameterMapping.getProperty(),parameterObject);
+                }
+            }else{
+                MetaObject metaObject = mappedStatement.getConfiguration().newMetaObject(parameterObject);
+                ObjectWrapper wrapper = metaObject.getObjectWrapper();
+                for (ParameterMapping parameterMapping : parameterMappings) {
+                    PropertyTokenizer prop = new PropertyTokenizer(parameterMapping.getProperty());
+                    pageParameters.put(parameterMapping.getProperty(),wrapper.get(prop));
+                }
             }
+
         }
 
         StringBuffer bufferSql = new StringBuffer(boundSql.getSql().trim());
@@ -139,5 +149,4 @@ public class Dialect {
         buffer.delete(buffer.length()-2, buffer.length());
         return buffer.toString();
     }
-    
 }
