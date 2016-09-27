@@ -217,7 +217,7 @@ public class Paginator implements Serializable {
             endPageNumber = lastPageNumber;
         }
 
-        if (endPageNumber - startPageNumber < count) {
+        if (endPageNumber - startPageNumber + 1 < count) {
             startPageNumber = endPageNumber - count;
             if (startPageNumber <= 0) {
                 startPageNumber = 1;
